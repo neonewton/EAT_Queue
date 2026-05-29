@@ -388,6 +388,9 @@ if st.session_state.last_action_message:
 # =========================================================
 # ACTIVE QUEUE SECTION
 # =========================================================
+# =========================================================
+# ACTIVE QUEUE SECTION
+# =========================================================
 st.subheader("📋 Active Queue")
 
 try:
@@ -410,103 +413,115 @@ all_queue = sorted(
 if not all_queue:
     st.info("No active queue.")
 else:
-    with st.container(border=True):
-        if status == STATUS_RETURNED:
-            code_display = f"✅ {queue_code}"
-        else:
-            code_display = f"{index}. {queue_code}"
+    for index, row in enumerate(all_queue, start=1):
+        row_id = row.get("id")
+        queue_code = row.get("queue_code", "")
+        seat = row.get("seat_no", "")
+        status = row.get("status", STATUS_QUEUED)
+        gender = row.get("gender", "-")
+        location = row.get("location", "Unassigned")
+        toilet_label = TOILET_LABELS.get(location, location)
 
-        st.markdown(
-            f"<div class='queue-code'>{code_display}</div>",
-            unsafe_allow_html=True,
-        )
+        assigned_at = format_datetime(row.get("assigned_at"))
+        returned_at = format_datetime(row.get("returned_at"))
 
-        if status == STATUS_IN_PROGRESS:
-            status_display = "<span class='status-inprogress'>IN PROGRESS</span>"
-        else:
-            status_display = status
+        with st.container(border=True):
+            if status == STATUS_RETURNED:
+                code_display = f"✅ {queue_code}"
+            else:
+                code_display = f"{index}. {queue_code}"
 
-        st.markdown(
-            f"""
-            <div class='queue-meta'>
-                <b>Seat:</b> {seat}<br>
-                <b>Status:</b> {status_display}<br>
-                <b>Gender:</b> {gender}<br>
-                <b>Toilet:</b> {toilet_label}<br>
-                <b>Assigned:</b> {assigned_at}<br>
-                <b>Returned:</b> {returned_at}
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        if status == STATUS_QUEUED:
             st.markdown(
-                "<div class='assign-title'>Assign Toilet</div>",
+                f"<div class='queue-code'>{code_display}</div>",
                 unsafe_allow_html=True,
             )
 
-            assign_cols = st.columns(3)
+            if status == STATUS_IN_PROGRESS:
+                status_display = "<span class='status-inprogress'>IN PROGRESS</span>"
+            else:
+                status_display = status
 
-            with assign_cols[0]:
-                st.button(
-                    "🚹 Male",
-                    key=f"assign_male_{row_id}",
-                    on_click=assign_toilet_callback,
-                    args=(row_id, queue_code, gender, "Male"),
-                    use_container_width=True,
-                )
-
-            with assign_cols[1]:
-                st.button(
-                    "🚺 Female",
-                    key=f"assign_female_{row_id}",
-                    on_click=assign_toilet_callback,
-                    args=(row_id, queue_code, gender, "Female"),
-                    use_container_width=True,
-                )
-
-            with assign_cols[2]:
-                st.button(
-                    "♿ Handicap",
-                    key=f"assign_handicap_{row_id}",
-                    on_click=assign_toilet_callback,
-                    args=(row_id, queue_code, gender, "Handicap"),
-                    use_container_width=True,
-                )
-
-            move_cols = st.columns(2)
-
-            with move_cols[0]:
-                st.button(
-                    "⬆️ Move Up",
-                    key=f"up_{row_id}",
-                    on_click=move_up_callback,
-                    args=(row_id,),
-                    use_container_width=True,
-                )
-
-            with move_cols[1]:
-                st.button(
-                    "⬇️ Move Down",
-                    key=f"down_{row_id}",
-                    on_click=move_down_callback,
-                    args=(row_id,),
-                    use_container_width=True,
-                )
-
-        elif status == STATUS_IN_PROGRESS:
-            st.button(
-                "✅ Return",
-                key=f"return_{row_id}",
-                type="primary",
-                on_click=return_callback,
-                args=(row_id, queue_code),
-                use_container_width=True,
+            st.markdown(
+                f"""
+                <div class='queue-meta'>
+                    <b>Seat:</b> {seat}<br>
+                    <b>Status:</b> {status_display}<br>
+                    <b>Gender:</b> {gender}<br>
+                    <b>Toilet:</b> {toilet_label}<br>
+                    <b>Assigned:</b> {assigned_at}<br>
+                    <b>Returned:</b> {returned_at}
+                </div>
+                """,
+                unsafe_allow_html=True,
             )
 
-        elif status == STATUS_RETURNED:
-            st.caption("Returned — will hide after 10 seconds.")
+            if status == STATUS_QUEUED:
+                st.markdown(
+                    "<div class='assign-title'>Assign Toilet</div>",
+                    unsafe_allow_html=True,
+                )
+
+                assign_cols = st.columns(3)
+
+                with assign_cols[0]:
+                    st.button(
+                        "🚹 Male",
+                        key=f"assign_male_{row_id}",
+                        on_click=assign_toilet_callback,
+                        args=(row_id, queue_code, gender, "Male"),
+                        use_container_width=True,
+                    )
+
+                with assign_cols[1]:
+                    st.button(
+                        "🚺 Female",
+                        key=f"assign_female_{row_id}",
+                        on_click=assign_toilet_callback,
+                        args=(row_id, queue_code, gender, "Female"),
+                        use_container_width=True,
+                    )
+
+                with assign_cols[2]:
+                    st.button(
+                        "♿ Handicap",
+                        key=f"assign_handicap_{row_id}",
+                        on_click=assign_toilet_callback,
+                        args=(row_id, queue_code, gender, "Handicap"),
+                        use_container_width=True,
+                    )
+
+                move_cols = st.columns(2)
+
+                with move_cols[0]:
+                    st.button(
+                        "⬆️ Move Up",
+                        key=f"up_{row_id}",
+                        on_click=move_up_callback,
+                        args=(row_id,),
+                        use_container_width=True,
+                    )
+
+                with move_cols[1]:
+                    st.button(
+                        "⬇️ Move Down",
+                        key=f"down_{row_id}",
+                        on_click=move_down_callback,
+                        args=(row_id,),
+                        use_container_width=True,
+                    )
+
+            elif status == STATUS_IN_PROGRESS:
+                st.button(
+                    "✅ Return",
+                    key=f"return_{row_id}",
+                    type="primary",
+                    on_click=return_callback,
+                    args=(row_id, queue_code),
+                    use_container_width=True,
+                )
+
+            elif status == STATUS_RETURNED:
+                st.caption("Returned — will hide after 10 seconds.")
 
 
 # =========================================================
