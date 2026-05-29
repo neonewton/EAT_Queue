@@ -6,10 +6,8 @@ import pandas as pd
 import streamlit as st
 from supabase import create_client
 from streamlit_autorefresh import st_autorefresh
-
 from theme import apply_ntu_purple_theme
 
-apply_ntu_purple_theme()
 
 # =========================================================
 # STREAMLIT CONFIG
@@ -20,6 +18,8 @@ st.set_page_config(
     layout="centered",
     initial_sidebar_state="collapsed",
 )
+
+apply_ntu_purple_theme()
 
 
 # =========================================================
