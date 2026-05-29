@@ -29,7 +29,16 @@ LOCATIONS = ["Male", "Female", "Handicap"]
 GENDERS = ["Male", "Female"]
 ACTIVE_STATUSES = ["Queued", "Returned"]
 SGT = ZoneInfo("Asia/Singapore")
+TOILET_LABELS = {
+    "Male": "🚹 Male",
+    "Female": "🚺 Female",
+    "Handicap": "♿ Handicap",
+}
 
+GENDER_LABELS = {
+    "Male": "Male",
+    "Female": "Female",
+}
 
 # =========================================================
 # MOBILE-FIRST CSS
@@ -329,11 +338,23 @@ def add_student():
     location = st.session_state.selected_location
 
     if not seat_no:
-        st.session_state.last_action_message = "Please enter a seat number."
+        st.session_state.last_action_message = "❌ Please enter a seat number."
         return
 
     if not seat_no.isdigit():
-        st.session_state.last_action_message = "Seat number must be numeric."
+        st.session_state.last_action_message = "❌ Seat number must be numeric."
+        return
+
+    # Validation rule:
+    # Male cannot go Female Toilet
+    # Female cannot go Male Toilet
+    # Both can go Handicap Toilet
+    if gender == "Male" and location == "Female":
+        st.session_state.last_action_message = "❌ Male student cannot be assigned to Female Toilet."
+        return
+
+    if gender == "Female" and location == "Male":
+        st.session_state.last_action_message = "❌ Female student cannot be assigned to Male Toilet."
         return
 
     queue_code = get_queue_code(seat_no, gender)
@@ -347,7 +368,7 @@ def add_student():
     )
 
     if duplicate:
-        st.session_state.last_action_message = f"{queue_code} is already active."
+        st.session_state.last_action_message = f"❌ {queue_code} is already active."
         return
 
     next_order = get_next_order(location)
@@ -368,7 +389,7 @@ def add_student():
     )
 
     if result is not None:
-        st.session_state.last_action_message = f"Added {queue_code} to {location}."
+        st.session_state.last_action_message = f"✅ Added {queue_code} to {TOILET_LABELS.get(location, location)} Toilet."
         st.session_state.seat_no_text = ""
 
 
@@ -564,6 +585,15 @@ with location_cols[2]:
         use_container_width=True,
     )
 
+selected_gender = st.session_state.selected_gender
+selected_location = st.session_state.selected_location
+
+if selected_gender == "Male" and selected_location == "Female":
+    st.error("Male student cannot be assigned to Female Toilet.")
+
+if selected_gender == "Female" and selected_location == "Male":
+    st.error("Female student cannot be assigned to Male Toilet.")
+
 preview_code = (
     get_queue_code(st.session_state.seat_no_text, st.session_state.selected_gender)
     if st.session_state.seat_no_text
@@ -591,96 +621,111 @@ if st.session_state.last_action_message:
 
 
 # =========================================================
-# ACTIVE QUEUE SECTION
+# ACTIVE QUEUE SECTION — SINGLE UNIFIED LIST
 # =========================================================
 st.subheader("📋 Active Queue")
 
-tabs = st.tabs(["🚹 Male", "🚺 Female", "♿ Handicap"])
+all_queue = []
 
-for tab, location in zip(tabs, LOCATIONS):
-    with tab:
+for location in LOCATIONS:
+    location_rows = load_queue(location)
+
+    for row in location_rows:
+        row["toilet_location"] = location
+        all_queue.append(row)
+
+# Sort all records together
+# Queued first, Returned second, then by queue_order / assigned_at
+all_queue = sorted(
+    all_queue,
+    key=lambda x: (
+        1 if x.get("status") == "Returned" else 0,
+        x.get("queue_order", 9999) or 9999,
+        x.get("assigned_at", "")
+    )
+)
+
+if not all_queue:
+    st.info("No active queue.")
+else:
+    for index, row in enumerate(all_queue, start=1):
+        row_id = row.get("id")
+        queue_code = row.get("queue_code", "")
+        seat = row.get("seat_no", "")
+        status = row.get("status", "Queued")
+        gender = row.get("gender", "-")
+        location = row.get("location", "-")
+
+        assigned_at = format_datetime(row.get("assigned_at"))
+        returned_at = format_datetime(row.get("returned_at"))
+
+        toilet_label = TOILET_LABELS.get(location, location)
+
+        card_class = "queue-card-returned" if status == "Returned" else "queue-card"
+
         st.markdown(
-            f"<div class='lane-header'>{location} Toilet</div>",
+            f"<div class='{card_class}'>",
             unsafe_allow_html=True,
         )
 
-        queue = load_queue(location)
+        code_display = f"✅ {queue_code}" if status == "Returned" else f"{index}. {queue_code}"
 
-        if not queue:
-            st.info("No active queue.")
-            continue
+        st.markdown(
+            f"<div class='queue-code'>{code_display}</div>",
+            unsafe_allow_html=True,
+        )
 
-        for index, row in enumerate(queue, start=1):
-            row_id = row.get("id")
-            queue_code = row.get("queue_code", "")
-            seat = row.get("seat_no", "")
-            status = row.get("status", "Queued")
-            assigned_at = format_datetime(row.get("assigned_at"))
-            returned_at = format_datetime(row.get("returned_at"))
+        st.markdown(
+            f"""
+            <div class='queue-meta'>
+                <b>Seat:</b> {seat}<br>
+                <b>Status:</b> {status}<br>
+                <b>Gender:</b> {gender}<br>
+                <b>Toilet:</b> {toilet_label}<br>
+                <b>Assigned:</b> {assigned_at}<br>
+                <b>Returned:</b> {returned_at}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-            card_class = "queue-card-returned" if status == "Returned" else "queue-card"
+        action_cols = st.columns([1, 1, 2])
 
-            st.markdown(
-                f"<div class='{card_class}'>",
-                unsafe_allow_html=True,
+        with action_cols[0]:
+            st.button(
+                "⬆️",
+                key=f"up_unified_{location}_{row_id}",
+                disabled=(status != "Queued"),
+                on_click=move_up,
+                args=(location, row_id),
+                use_container_width=True,
             )
 
-            code_display = f"✅ {queue_code}" if status == "Returned" else f"{index}. {queue_code}"
-
-            st.markdown(
-                f"<div class='queue-code'>{code_display}</div>",
-                unsafe_allow_html=True,
+        with action_cols[1]:
+            st.button(
+                "⬇️",
+                key=f"down_unified_{location}_{row_id}",
+                disabled=(status != "Queued"),
+                on_click=move_down,
+                args=(location, row_id),
+                use_container_width=True,
             )
 
-            st.markdown(
-                f"""
-                <div class='queue-meta'>
-                    <b>Seat:</b> {seat}<br>
-                    <b>Status:</b> {status}<br>
-                    <b>Assigned:</b> {assigned_at}<br>
-                    <b>Returned:</b> {returned_at}
-                </div>
-                """,
-                unsafe_allow_html=True,
+        with action_cols[2]:
+            st.button(
+                "✅ Return" if status == "Queued" else "Returned",
+                key=f"return_unified_{location}_{row_id}",
+                type="primary" if status == "Queued" else "secondary",
+                disabled=(status != "Queued"),
+                on_click=mark_returned,
+                args=(row_id, queue_code),
+                use_container_width=True,
             )
 
-            action_cols = st.columns([1, 1, 2])
+        if status == "Returned":
+            st.caption("Will hide after 10 seconds.")
 
-            with action_cols[0]:
-                st.button(
-                    "⬆️",
-                    key=f"up_{location}_{row_id}",
-                    disabled=(status != "Queued"),
-                    on_click=move_up,
-                    args=(location, row_id),
-                    use_container_width=True,
-                )
-
-            with action_cols[1]:
-                st.button(
-                    "⬇️",
-                    key=f"down_{location}_{row_id}",
-                    disabled=(status != "Queued"),
-                    on_click=move_down,
-                    args=(location, row_id),
-                    use_container_width=True,
-                )
-
-            with action_cols[2]:
-                st.button(
-                    "✅ Return" if status == "Queued" else "Returned",
-                    key=f"return_{location}_{row_id}",
-                    type="primary" if status == "Queued" else "secondary",
-                    disabled=(status != "Queued"),
-                    on_click=mark_returned,
-                    args=(row_id, queue_code),
-                    use_container_width=True,
-                )
-
-            if status == "Returned":
-                st.caption("Will hide after 10 seconds.")
-
-            st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 # =========================================================
