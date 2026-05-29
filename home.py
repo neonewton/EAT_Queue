@@ -306,33 +306,37 @@ pad_rows = [
     ["C", "0", "⌫"],
 ]
 
-for row_index, row in enumerate(pad_rows):
-    cols = st.columns(3)
+# Keypad - fixed width, centred
+keypad_left, keypad_mid, keypad_right = st.columns([0.12, 0.76, 0.12])
 
-    for col, key in zip(cols, row):
-        with col:
-            if key == "C":
-                st.button(
-                    "C",
-                    key=f"pad_clear_{row_index}",
-                    on_click=clear_digits,
-                    use_container_width=True,
-                )
-            elif key == "⌫":
-                st.button(
-                    "⌫",
-                    key=f"pad_backspace_{row_index}",
-                    on_click=backspace_digit,
-                    use_container_width=True,
-                )
-            else:
-                st.button(
-                    key,
-                    key=f"pad_{key}_{row_index}",
-                    on_click=append_digit,
-                    args=(key,),
-                    use_container_width=True,
-                )
+with keypad_mid:
+    for row_index, row in enumerate(pad_rows):
+        cols = st.columns(3, gap="small")
+
+        for col, key in zip(cols, row):
+            with col:
+                if key == "C":
+                    st.button(
+                        "C",
+                        key=f"pad_clear_{row_index}",
+                        on_click=clear_digits,
+                        use_container_width=True,
+                    )
+                elif key == "⌫":
+                    st.button(
+                        "⌫",
+                        key=f"pad_backspace_{row_index}",
+                        on_click=backspace_digit,
+                        use_container_width=True,
+                    )
+                else:
+                    st.button(
+                        key,
+                        key=f"pad_{key}_{row_index}",
+                        on_click=append_digit,
+                        args=(key,),
+                        use_container_width=True,
+                    )
 
 st.markdown("### Gender")
 
