@@ -201,6 +201,19 @@ def set_message(ok, message):
     st.session_state.last_action_message = message
 
 
+def append_digit(digit):
+    if len(st.session_state.seat_no_text) < 4:
+        st.session_state.seat_no_text += str(digit)
+
+
+def backspace_digit():
+    st.session_state.seat_no_text = st.session_state.seat_no_text[:-1]
+
+
+def clear_digits():
+    st.session_state.seat_no_text = ""
+
+
 def select_gender(gender):
     st.session_state.selected_gender = gender
 
@@ -279,24 +292,39 @@ except Exception as e:
 # =========================================================
 st.subheader("➕ Add Student")
 
-seat_no_value = st.text_input(
-    "Seat Number",
-    value=st.session_state.seat_no_text,
-    placeholder="Enter seat number",
-    max_chars=4,
-)
+# Compact numpad - phone friendly
+for row_index, row in enumerate(pad_rows):
+    spacer_left, col1, col2, col3, spacer_right = st.columns(
+        [0.8, 1, 1, 1, 0.8]
+        gap="small"
+    )
 
-# Keep numbers only
-seat_no_value = "".join(char for char in seat_no_value if char.isdigit())
+    button_cols = [col1, col2, col3]
 
-st.session_state.seat_no_text = seat_no_value
-
-seat_display = st.session_state.seat_no_text or "—"
-
-st.markdown(
-    f"<div class='seat-display'>{seat_display}</div>",
-    unsafe_allow_html=True,
-)
+    for col, key in zip(button_cols, row):
+        with col:
+            if key == "C":
+                st.button(
+                    "C",
+                    key=f"pad_clear_{row_index}",
+                    on_click=clear_digits,
+                    use_container_width=True,
+                )
+            elif key == "⌫":
+                st.button(
+                    "⌫",
+                    key=f"pad_backspace_{row_index}",
+                    on_click=backspace_digit,
+                    use_container_width=True,
+                )
+            else:
+                st.button(
+                    key,
+                    key=f"pad_{key}_{row_index}",
+                    on_click=append_digit,
+                    args=(key,),
+                    use_container_width=True,
+                )
 
 st.markdown("### Gender")
 
