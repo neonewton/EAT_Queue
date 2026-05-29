@@ -33,7 +33,6 @@ SGT = ZoneInfo("Asia/Singapore")
 st.markdown(
     """
     <style>
-    /* Overall mobile container */
     .block-container {
         max-width: 430px !important;
         padding-top: 0.75rem !important;
@@ -44,74 +43,88 @@ st.markdown(
 
     h1 {
         text-align: center !important;
-        font-size: 1.55rem !important;
-        margin-bottom: 0.75rem !important;
+        font-size: 1.45rem !important;
+        margin-bottom: 0.65rem !important;
     }
 
     h2, h3 {
-        margin-top: 0.6rem !important;
-        margin-bottom: 0.45rem !important;
+        margin-top: 0.55rem !important;
+        margin-bottom: 0.35rem !important;
     }
 
-    /* Make all Streamlit buttons large and touch-friendly */
-    .stButton > button {
-        width: 100% !important;
-        min-height: 54px !important;
-        border-radius: 14px !important;
-        font-size: 1.05rem !important;
-        font-weight: 700 !important;
-        padding: 0.55rem 0.4rem !important;
-    }
-
-    button[kind="primary"] {
-        font-weight: 800 !important;
-    }
-
-    /* Reduce column gaps for keypad */
+    /* Force columns to stay horizontal on phones */
     div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
         gap: 0.45rem !important;
+        width: 100% !important;
     }
 
-    /* Seat number display */
+    div[data-testid="column"] {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        width: auto !important;
+    }
+
+    /* Make Streamlit buttons fill their column */
+    div[data-testid="stButton"] {
+        width: 100% !important;
+    }
+
+    div[data-testid="stButton"] > button {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 52px !important;
+        border-radius: 14px !important;
+        font-size: 0.95rem !important;
+        font-weight: 700 !important;
+        padding: 0.45rem 0.25rem !important;
+        white-space: nowrap !important;
+    }
+
+    /* Smaller buttons for queue action row */
+    .queue-action-row div[data-testid="stButton"] > button {
+        min-height: 46px !important;
+        font-size: 0.85rem !important;
+    }
+
     .seat-display {
         width: 100%;
         border: 2px solid #d9d9d9;
         border-radius: 18px;
         text-align: center;
-        padding: 0.85rem 0;
-        margin: 0.4rem 0 0.75rem 0;
-        font-size: 2.4rem;
+        padding: 0.8rem 0;
+        margin: 0.4rem 0 0.7rem 0;
+        font-size: 2.2rem;
         font-weight: 900;
         background-color: #fafafa;
         letter-spacing: 0.08rem;
     }
 
-    /* Section card */
     .section-card {
         border: 1px solid #e5e5e5;
         border-radius: 18px;
-        padding: 0.85rem;
+        padding: 0.8rem;
         margin-bottom: 0.9rem;
         background-color: #ffffff;
     }
 
-    /* Preview */
     .preview-box {
         width: 100%;
         text-align: center;
-        font-size: 1.15rem;
+        font-size: 1.05rem;
         font-weight: 800;
-        padding: 0.8rem 0;
+        padding: 0.75rem 0;
         border-radius: 14px;
         background-color: #f3f3f3;
-        margin: 0.85rem 0;
+        margin: 0.8rem 0;
     }
 
-    /* Queue cards */
     .queue-card {
         border: 1px solid #dedede;
         border-radius: 18px;
-        padding: 0.9rem;
+        padding: 0.85rem;
         margin-bottom: 0.8rem;
         background-color: #ffffff;
         box-shadow: 0 1px 4px rgba(0,0,0,0.04);
@@ -120,33 +133,33 @@ st.markdown(
     .queue-card-returned {
         border: 1px solid #9cd89c;
         border-radius: 18px;
-        padding: 0.9rem;
+        padding: 0.85rem;
         margin-bottom: 0.8rem;
         background-color: #f1fff1;
         box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
 
     .queue-code {
-        font-size: 1.85rem;
+        font-size: 1.65rem;
         font-weight: 900;
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.3rem;
     }
 
     .queue-meta {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: #555;
-        line-height: 1.55;
-        margin-bottom: 0.75rem;
+        line-height: 1.45;
+        margin-bottom: 0.7rem;
     }
 
     .lane-header {
         text-align: center;
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         font-weight: 900;
-        padding: 0.75rem 0;
+        padding: 0.7rem 0;
         border-radius: 16px;
         background-color: #f2f2f2;
-        margin-bottom: 0.8rem;
+        margin-bottom: 0.75rem;
     }
 
     .success-note {
@@ -158,20 +171,6 @@ st.markdown(
         margin-bottom: 0.6rem;
     }
 
-    /* Make radio options nicer on mobile */
-    div[role="radiogroup"] {
-        gap: 0.5rem;
-    }
-
-    div[role="radiogroup"] label {
-        border: 1px solid #ddd;
-        border-radius: 14px;
-        padding: 0.55rem 0.75rem;
-        background-color: #fafafa;
-        margin-bottom: 0.35rem;
-    }
-
-    /* Hide Streamlit default menu/footer */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -179,7 +178,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
 
 # =========================================================
 # PASSWORD PROTECTION
