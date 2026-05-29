@@ -1,6 +1,7 @@
 import time
 from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
+from streamlit_autorefresh import st_autorefresh
 
 import pandas as pd
 import streamlit as st
@@ -449,12 +450,10 @@ def select_location(location):
 # =========================================================
 # AUTO ARCHIVE + AUTO REFRESH
 # =========================================================
+
+
+st_autorefresh(interval=3000, key="queue_autorefresh")
 archive_old_returned()
-
-if time.time() - st.session_state.last_refresh > 4:
-    st.session_state.last_refresh = time.time()
-    st.rerun()
-
 
 # =========================================================
 # ADD STUDENT SECTION
