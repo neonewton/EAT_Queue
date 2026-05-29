@@ -153,11 +153,11 @@ except KeyError:
     st.error("APP_PASSWORD is missing from Streamlit Cloud Secrets.")
     st.stop()
 
-password = st.text_input("Enter event password", type="password")
+# password = st.text_input("Enter event password", type="password")
 
-if password != APP_PASSWORD:
-    st.warning("Please enter the correct password to continue.")
-    st.stop()
+# if password != APP_PASSWORD:
+#     st.warning("Please enter the correct password to continue.")
+#     st.stop()
 
 
 # =========================================================
