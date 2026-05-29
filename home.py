@@ -103,17 +103,20 @@ def archive_old_returned():
 
 
 def load_queue(location):
-    """Load active queue for one location."""
-    return (
-        supabase.table("toilet_queue")
-        .select("*")
-        .eq("location", location)
-        .in_("status", ACTIVE_STATUSES)
-        .order("queue_order")
-        .execute()
-        .data
-    )
-
+    try:
+        return (
+            supabase.table("toilet_queue")
+            .select("*")
+            .eq("location", location)
+            .in_("status", ACTIVE_STATUSES)
+            .order("queue_order")
+            .execute()
+            .data
+        )
+    except Exception as e:
+        st.error(f"Failed to load {location} queue from Supabase.")
+        st.exception(e)
+        return []
 
 def load_all_active():
     """Load all active records."""
