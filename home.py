@@ -295,7 +295,7 @@ st.subheader("➕ Add Student")
 # Compact numpad - phone friendly
 for row_index, row in enumerate(pad_rows):
     spacer_left, col1, col2, col3, spacer_right = st.columns(
-        [0.8, 1, 1, 1, 0.8]
+        [0.8, 1, 1, 1, 0.8],
         gap="small"
     )
 
