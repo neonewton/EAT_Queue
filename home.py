@@ -11,9 +11,10 @@ from supabase import create_client
 # STREAMLIT CONFIG
 # =========================================================
 st.set_page_config(
-    page_title="Toilet Queue System",
+    page_title="Toilet Queue",
     page_icon="🚻",
-    layout="centered"
+    layout="centered",
+    initial_sidebar_state="collapsed",
 )
 
 
@@ -32,113 +33,151 @@ SGT = ZoneInfo("Asia/Singapore")
 st.markdown(
     """
     <style>
+    /* Overall mobile container */
     .block-container {
-        padding-top: 0.8rem;
-        padding-left: 0.7rem;
-        padding-right: 0.7rem;
-        max-width: 520px;
+        max-width: 430px !important;
+        padding-top: 0.75rem !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        padding-bottom: 1rem !important;
     }
 
     h1 {
-        font-size: 1.65rem !important;
-        text-align: center;
-        margin-bottom: 0.5rem;
+        text-align: center !important;
+        font-size: 1.55rem !important;
+        margin-bottom: 0.75rem !important;
     }
 
     h2, h3 {
-        margin-top: 0.4rem;
-        margin-bottom: 0.4rem;
+        margin-top: 0.6rem !important;
+        margin-bottom: 0.45rem !important;
     }
 
-    div[data-testid="stButton"] > button {
-        width: 100%;
-        min-height: 48px;
-        font-size: 17px;
-        font-weight: 600;
-        border-radius: 12px;
-        padding: 0.4rem 0.5rem;
+    /* Make all Streamlit buttons large and touch-friendly */
+    .stButton > button {
+        width: 100% !important;
+        min-height: 54px !important;
+        border-radius: 14px !important;
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
+        padding: 0.55rem 0.4rem !important;
     }
 
+    button[kind="primary"] {
+        font-weight: 800 !important;
+    }
+
+    /* Reduce column gaps for keypad */
     div[data-testid="stHorizontalBlock"] {
-        gap: 0.35rem;
+        gap: 0.45rem !important;
     }
 
+    /* Seat number display */
     .seat-display {
-        border: 2px solid #dddddd;
-        border-radius: 14px;
+        width: 100%;
+        border: 2px solid #d9d9d9;
+        border-radius: 18px;
         text-align: center;
-        padding: 0.7rem;
-        margin-bottom: 0.6rem;
-        font-size: 2.2rem;
-        font-weight: 800;
+        padding: 0.85rem 0;
+        margin: 0.4rem 0 0.75rem 0;
+        font-size: 2.4rem;
+        font-weight: 900;
         background-color: #fafafa;
+        letter-spacing: 0.08rem;
     }
 
+    /* Section card */
     .section-card {
-        border: 1px solid #e3e3e3;
-        border-radius: 16px;
-        padding: 0.75rem;
-        margin-bottom: 0.75rem;
+        border: 1px solid #e5e5e5;
+        border-radius: 18px;
+        padding: 0.85rem;
+        margin-bottom: 0.9rem;
         background-color: #ffffff;
     }
 
+    /* Preview */
+    .preview-box {
+        width: 100%;
+        text-align: center;
+        font-size: 1.15rem;
+        font-weight: 800;
+        padding: 0.8rem 0;
+        border-radius: 14px;
+        background-color: #f3f3f3;
+        margin: 0.85rem 0;
+    }
+
+    /* Queue cards */
     .queue-card {
-        border: 1px solid #dddddd;
-        border-radius: 16px;
-        padding: 0.75rem;
-        margin-bottom: 0.7rem;
-        background-color: #fafafa;
+        border: 1px solid #dedede;
+        border-radius: 18px;
+        padding: 0.9rem;
+        margin-bottom: 0.8rem;
+        background-color: #ffffff;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
 
     .queue-card-returned {
-        border: 1px solid #b7e0b7;
-        border-radius: 16px;
-        padding: 0.75rem;
-        margin-bottom: 0.7rem;
-        background-color: #f0fff0;
+        border: 1px solid #9cd89c;
+        border-radius: 18px;
+        padding: 0.9rem;
+        margin-bottom: 0.8rem;
+        background-color: #f1fff1;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
 
     .queue-code {
-        font-size: 1.7rem;
-        font-weight: 800;
-        margin-bottom: 0.2rem;
+        font-size: 1.85rem;
+        font-weight: 900;
+        margin-bottom: 0.35rem;
     }
 
     .queue-meta {
         font-size: 0.9rem;
-        color: #555555;
-        line-height: 1.45;
+        color: #555;
+        line-height: 1.55;
+        margin-bottom: 0.75rem;
     }
 
     .lane-header {
         text-align: center;
-        font-size: 1.35rem;
-        font-weight: 800;
-        padding: 0.5rem;
-        border-radius: 14px;
-        background-color: #f3f3f3;
+        font-size: 1.2rem;
+        font-weight: 900;
+        padding: 0.75rem 0;
+        border-radius: 16px;
+        background-color: #f2f2f2;
+        margin-bottom: 0.8rem;
+    }
+
+    .success-note {
+        text-align: center;
+        font-weight: 700;
+        padding: 0.6rem;
+        border-radius: 12px;
+        background-color: #f4f4f4;
         margin-bottom: 0.6rem;
     }
 
-    .preview-box {
-        text-align: center;
-        font-size: 1.2rem;
-        font-weight: 700;
-        padding: 0.5rem;
-        border-radius: 12px;
-        background-color: #f5f5f5;
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
+    /* Make radio options nicer on mobile */
+    div[role="radiogroup"] {
+        gap: 0.5rem;
     }
 
-    .small-note {
-        text-align: center;
-        font-size: 0.85rem;
-        color: #666666;
+    div[role="radiogroup"] label {
+        border: 1px solid #ddd;
+        border-radius: 14px;
+        padding: 0.55rem 0.75rem;
+        background-color: #fafafa;
+        margin-bottom: 0.35rem;
     }
+
+    /* Hide Streamlit default menu/footer */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 
@@ -153,11 +192,11 @@ except KeyError:
     st.error("APP_PASSWORD is missing from Streamlit Cloud Secrets.")
     st.stop()
 
-# password = st.text_input("Enter event password", type="password")
+password = st.text_input("Event Password", type="password", label_visibility="collapsed")
 
-# if password != APP_PASSWORD:
-#     st.warning("Please enter the correct password to continue.")
-#     st.stop()
+if password != APP_PASSWORD:
+    st.warning("Enter password to continue.")
+    st.stop()
 
 
 # =========================================================
@@ -216,9 +255,10 @@ def get_queue_code(seat_no, gender):
     return f"{prefix}{seat_no}"
 
 
-def safe_execute(query, error_message):
+def db_execute(query, error_message):
     try:
-        return query.execute().data
+        response = query.execute()
+        return response.data
     except Exception as e:
         st.error(error_message)
         st.exception(e)
@@ -228,14 +268,14 @@ def safe_execute(query, error_message):
 def archive_old_returned():
     cutoff = datetime.now(timezone.utc) - timedelta(seconds=10)
 
-    returned_rows = safe_execute(
+    returned_rows = db_execute(
         supabase.table("toilet_queue")
         .select("*")
         .eq("status", "Returned"),
-        "Failed to check returned queue records."
+        "Failed to check returned queue records.",
     )
 
-    if returned_rows is None:
+    if not returned_rows:
         return
 
     for row in returned_rows:
@@ -250,11 +290,11 @@ def archive_old_returned():
             )
 
             if returned_at < cutoff:
-                safe_execute(
+                db_execute(
                     supabase.table("toilet_queue")
                     .update({"status": "Archived"})
                     .eq("id", row["id"]),
-                    "Failed to archive old returned record."
+                    "Failed to archive returned record.",
                 )
 
         except Exception:
@@ -262,44 +302,43 @@ def archive_old_returned():
 
 
 def load_queue(location):
-    rows = safe_execute(
+    rows = db_execute(
         supabase.table("toilet_queue")
         .select("*")
         .eq("location", location)
         .in_("status", ACTIVE_STATUSES)
         .order("queue_order")
         .order("assigned_at"),
-        f"Failed to load {location} queue from Supabase."
+        f"Failed to load {location} queue.",
     )
 
     return rows or []
 
 
 def load_log():
-    rows = safe_execute(
+    rows = db_execute(
         supabase.table("toilet_queue")
         .select("*")
         .order("assigned_at", desc=True),
-        "Failed to load queue log from Supabase."
+        "Failed to load queue log.",
     )
 
     return rows or []
 
 
 def get_next_order(location):
-    rows = safe_execute(
+    rows = db_execute(
         supabase.table("toilet_queue")
         .select("queue_order")
         .eq("location", location)
         .in_("status", ACTIVE_STATUSES),
-        f"Failed to get next queue order for {location}."
+        f"Failed to get next order for {location}.",
     )
 
     if not rows:
         return 1
 
-    max_order = max(row.get("queue_order", 0) or 0 for row in rows)
-    return max_order + 1
+    return max(row.get("queue_order", 0) or 0 for row in rows) + 1
 
 
 def add_student():
@@ -317,12 +356,12 @@ def add_student():
 
     queue_code = get_queue_code(seat_no, gender)
 
-    duplicate = safe_execute(
+    duplicate = db_execute(
         supabase.table("toilet_queue")
         .select("*")
         .eq("queue_code", queue_code)
         .in_("status", ACTIVE_STATUSES),
-        "Failed to check duplicate queue record."
+        "Failed to check duplicate record.",
     )
 
     if duplicate:
@@ -331,7 +370,7 @@ def add_student():
 
     next_order = get_next_order(location)
 
-    result = safe_execute(
+    result = db_execute(
         supabase.table("toilet_queue")
         .insert({
             "queue_code": queue_code,
@@ -341,9 +380,9 @@ def add_student():
             "status": "Queued",
             "queue_order": next_order,
             "assigned_at": now_utc_iso(),
-            "returned_at": None
+            "returned_at": None,
         }),
-        "Failed to add student to queue."
+        "Failed to add student.",
     )
 
     if result is not None:
@@ -352,14 +391,15 @@ def add_student():
 
 
 def mark_returned(row_id, queue_code):
-    result = safe_execute(
+    result = db_execute(
         supabase.table("toilet_queue")
         .update({
             "status": "Returned",
-            "returned_at": now_utc_iso()
+            "returned_at": now_utc_iso(),
         })
-        .eq("id", row_id),
-        f"Failed to mark {queue_code} as returned. Check Supabase UPDATE permission."
+        .eq("id", row_id)
+        .select("*"),
+        f"Failed to mark {queue_code} as returned.",
     )
 
     if result is not None:
@@ -367,49 +407,43 @@ def mark_returned(row_id, queue_code):
 
 
 def swap_queue_order(row_a, row_b):
-    id_a = row_a["id"]
-    id_b = row_b["id"]
     order_a = row_a["queue_order"]
     order_b = row_b["queue_order"]
 
-    safe_execute(
+    db_execute(
         supabase.table("toilet_queue")
         .update({"queue_order": order_b})
-        .eq("id", id_a),
-        "Failed to update queue order."
+        .eq("id", row_a["id"])
+        .select("*"),
+        "Failed to move queue item.",
     )
 
-    safe_execute(
+    db_execute(
         supabase.table("toilet_queue")
         .update({"queue_order": order_a})
-        .eq("id", id_b),
-        "Failed to update queue order."
+        .eq("id", row_b["id"])
+        .select("*"),
+        "Failed to move queue item.",
     )
 
 
 def move_up(location, row_id):
-    queue = [
-        row for row in load_queue(location)
-        if row.get("status") == "Queued"
-    ]
+    queue = [row for row in load_queue(location) if row.get("status") == "Queued"]
 
     for index, row in enumerate(queue):
-        if row["id"] == row_id:
-            if index > 0:
-                swap_queue_order(row, queue[index - 1])
+        if row["id"] == row_id and index > 0:
+            swap_queue_order(row, queue[index - 1])
+            st.session_state.last_action_message = f"{row['queue_code']} moved up."
             return
 
 
 def move_down(location, row_id):
-    queue = [
-        row for row in load_queue(location)
-        if row.get("status") == "Queued"
-    ]
+    queue = [row for row in load_queue(location) if row.get("status") == "Queued"]
 
     for index, row in enumerate(queue):
-        if row["id"] == row_id:
-            if index < len(queue) - 1:
-                swap_queue_order(row, queue[index + 1])
+        if row["id"] == row_id and index < len(queue) - 1:
+            swap_queue_order(row, queue[index + 1])
+            st.session_state.last_action_message = f"{row['queue_code']} moved down."
             return
 
 
@@ -426,20 +460,12 @@ def clear_digits():
     st.session_state.seat_no_text = ""
 
 
-def select_gender(gender):
-    st.session_state.selected_gender = gender
-
-
-def select_location(location):
-    st.session_state.selected_location = location
-
-
 # =========================================================
 # AUTO ARCHIVE + AUTO REFRESH
 # =========================================================
 archive_old_returned()
 
-if time.time() - st.session_state.last_refresh > 3:
+if time.time() - st.session_state.last_refresh > 4:
     st.session_state.last_refresh = time.time()
     st.rerun()
 
@@ -451,9 +477,10 @@ st.markdown("<div class='section-card'>", unsafe_allow_html=True)
 st.subheader("➕ Add Student")
 
 seat_display = st.session_state.seat_no_text or "—"
+
 st.markdown(
     f"<div class='seat-display'>{seat_display}</div>",
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 # Dial pad
@@ -461,114 +488,83 @@ pad_rows = [
     ["1", "2", "3"],
     ["4", "5", "6"],
     ["7", "8", "9"],
-    ["C", "0", "⌫"]
+    ["C", "0", "⌫"],
 ]
 
-for row in pad_rows:
-    c1, c2, c3 = st.columns(3)
+for row_index, row in enumerate(pad_rows):
+    cols = st.columns(3)
 
-    for col, key in zip([c1, c2, c3], row):
+    for col, key in zip(cols, row):
         with col:
             if key == "C":
                 st.button(
                     "C",
-                    key="pad_clear",
-                    on_click=clear_digits
+                    key=f"pad_clear_{row_index}",
+                    on_click=clear_digits,
                 )
             elif key == "⌫":
                 st.button(
                     "⌫",
-                    key="pad_backspace",
-                    on_click=backspace_digit
+                    key=f"pad_backspace_{row_index}",
+                    on_click=backspace_digit,
                 )
             else:
                 st.button(
                     key,
-                    key=f"pad_{key}",
+                    key=f"pad_{key}_{row_index}",
                     on_click=append_digit,
-                    args=(key,)
+                    args=(key,),
                 )
 
 st.markdown("### Gender")
-g1, g2 = st.columns(2)
 
-with g1:
-    st.button(
-        "Male",
-        key="gender_male",
-        type="primary" if st.session_state.selected_gender == "Male" else "secondary",
-        on_click=select_gender,
-        args=("Male",)
-    )
-
-with g2:
-    st.button(
-        "Female",
-        key="gender_female",
-        type="primary" if st.session_state.selected_gender == "Female" else "secondary",
-        on_click=select_gender,
-        args=("Female",)
-    )
+st.session_state.selected_gender = st.radio(
+    "Gender",
+    GENDERS,
+    index=GENDERS.index(st.session_state.selected_gender),
+    horizontal=True,
+    label_visibility="collapsed",
+)
 
 st.markdown("### Assign To")
-l1, l2, l3 = st.columns(3)
 
-with l1:
-    st.button(
-        "Male",
-        key="location_male",
-        type="primary" if st.session_state.selected_location == "Male" else "secondary",
-        on_click=select_location,
-        args=("Male",)
-    )
-
-with l2:
-    st.button(
-        "Female",
-        key="location_female",
-        type="primary" if st.session_state.selected_location == "Female" else "secondary",
-        on_click=select_location,
-        args=("Female",)
-    )
-
-with l3:
-    st.button(
-        "Handicap",
-        key="location_handicap",
-        type="primary" if st.session_state.selected_location == "Handicap" else "secondary",
-        on_click=select_location,
-        args=("Handicap",)
-    )
+st.session_state.selected_location = st.radio(
+    "Assign To",
+    LOCATIONS,
+    index=LOCATIONS.index(st.session_state.selected_location),
+    horizontal=True,
+    label_visibility="collapsed",
+)
 
 preview_code = (
-    get_queue_code(
-        st.session_state.seat_no_text,
-        st.session_state.selected_gender
-    )
+    get_queue_code(st.session_state.seat_no_text, st.session_state.selected_gender)
     if st.session_state.seat_no_text
     else "-"
 )
 
 st.markdown(
     f"<div class='preview-box'>Queue Code: {preview_code}</div>",
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 st.button(
-    "Add to Queue",
+    "➕ Add to Queue",
     key="add_to_queue",
     type="primary",
-    on_click=add_student
+    on_click=add_student,
 )
 
 if st.session_state.last_action_message:
-    st.info(st.session_state.last_action_message)
+    st.markdown(
+        f"<div class='success-note'>{st.session_state.last_action_message}</div>",
+        unsafe_allow_html=True,
+    )
 
 st.markdown("</div>", unsafe_allow_html=True)
 
 
 # =========================================================
-# ACTIVE QUEUE SECTION — PHONE-FIRST TABS
+# ACTIVE QUEUE SECTION
 # =========================================================
 st.subheader("📋 Active Queue")
 
@@ -578,7 +574,7 @@ for tab, location in zip(tabs, LOCATIONS):
     with tab:
         st.markdown(
             f"<div class='lane-header'>{location} Toilet</div>",
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
         queue = load_queue(location)
@@ -595,15 +591,11 @@ for tab, location in zip(tabs, LOCATIONS):
             assigned_at = format_datetime(row.get("assigned_at"))
             returned_at = format_datetime(row.get("returned_at"))
 
-            card_class = (
-                "queue-card-returned"
-                if status == "Returned"
-                else "queue-card"
-            )
+            card_class = "queue-card-returned" if status == "Returned" else "queue-card"
 
             st.markdown(
                 f"<div class='{card_class}'>",
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
 
             if status == "Returned":
@@ -613,52 +605,53 @@ for tab, location in zip(tabs, LOCATIONS):
 
             st.markdown(
                 f"<div class='queue-code'>{code_display}</div>",
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
 
             st.markdown(
                 f"""
                 <div class='queue-meta'>
-                    Seat: {seat}<br>
-                    Status: {status}<br>
-                    Assigned: {assigned_at}<br>
-                    Returned: {returned_at}
+                    <b>Seat:</b> {seat}<br>
+                    <b>Status:</b> {status}<br>
+                    <b>Assigned:</b> {assigned_at}<br>
+                    <b>Returned:</b> {returned_at}
                 </div>
                 """,
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
 
-            b1, b2, b3 = st.columns([1, 1, 2])
+            action_cols = st.columns([1, 1, 2])
 
-            with b1:
+            with action_cols[0]:
                 st.button(
                     "⬆️",
                     key=f"up_{location}_{row_id}",
                     disabled=(status != "Queued"),
                     on_click=move_up,
-                    args=(location, row_id)
+                    args=(location, row_id),
                 )
 
-            with b2:
+            with action_cols[1]:
                 st.button(
                     "⬇️",
                     key=f"down_{location}_{row_id}",
                     disabled=(status != "Queued"),
                     on_click=move_down,
-                    args=(location, row_id)
+                    args=(location, row_id),
                 )
 
-            with b3:
-                if status == "Queued":
-                    st.button(
-                        "Return",
-                        key=f"return_{location}_{row_id}",
-                        type="primary",
-                        on_click=mark_returned,
-                        args=(row_id, queue_code)
-                    )
-                else:
-                    st.caption("Returned — will hide after 10 seconds")
+            with action_cols[2]:
+                st.button(
+                    "✅ Return" if status == "Queued" else "Returned",
+                    key=f"return_{location}_{row_id}",
+                    type="primary" if status == "Queued" else "secondary",
+                    disabled=(status != "Queued"),
+                    on_click=mark_returned,
+                    args=(row_id, queue_code),
+                )
+
+            if status == "Returned":
+                st.caption("Will hide after 10 seconds.")
 
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -666,7 +659,7 @@ for tab, location in zip(tabs, LOCATIONS):
 # =========================================================
 # LOG SECTION
 # =========================================================
-with st.expander("📊 View Queue Log / Export CSV"):
+with st.expander("📊 Queue Log / Export CSV"):
     log_rows = load_log()
 
     if not log_rows:
@@ -682,7 +675,7 @@ with st.expander("📊 View Queue Log / Export CSV"):
             "status",
             "queue_order",
             "assigned_at",
-            "returned_at"
+            "returned_at",
         ]
 
         existing_columns = [col for col in display_columns if col in df.columns]
@@ -694,13 +687,13 @@ with st.expander("📊 View Queue Log / Export CSV"):
         if "returned_at" in df_display.columns:
             df_display["returned_at"] = df_display["returned_at"].apply(format_datetime)
 
-        st.dataframe(df_display, use_container_width=True)
+        st.dataframe(df_display, use_container_width=True, hide_index=True)
 
         csv = df.to_csv(index=False).encode("utf-8-sig")
 
         st.download_button(
-            label="Download Full Log as CSV",
+            label="Download CSV",
             data=csv,
             file_name="toilet_queue_log.csv",
-            mime="text/csv"
+            mime="text/csv",
         )
