@@ -69,11 +69,11 @@ st.markdown(
 
     div[data-testid="stButton"] > button {
         width: 100% !important;
-        min-height: 54px !important;
-        border-radius: 14px !important;
-        font-size: 0.98rem !important;
+        min-height: 46px !important;
+        border-radius: 12px !important;
+        font-size: 0.95rem !important;
         font-weight: 800 !important;
-        padding: 0.4rem 0.15rem !important;
+        padding: 0.35rem 0.15rem !important;
         white-space: nowrap !important;
     }
 
@@ -307,7 +307,7 @@ pad_rows = [
 ]
 
 # Keypad - fixed width, centred
-keypad_left, keypad_mid, keypad_right = st.columns([0.12, 0.76, 0.12])
+keypad_left, keypad_mid, keypad_right = st.columns([0.18, 0.64, 0.18])
 
 with keypad_mid:
     for row_index, row in enumerate(pad_rows):
