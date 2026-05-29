@@ -69,11 +69,11 @@ st.markdown(
 
     div[data-testid="stButton"] > button {
         width: 100% !important;
-        min-height: 46px !important;
-        border-radius: 12px !important;
-        font-size: 0.95rem !important;
+        min-height: 54px !important;
+        border-radius: 14px !important;
+        font-size: 0.98rem !important;
         font-weight: 800 !important;
-        padding: 0.35rem 0.15rem !important;
+        padding: 0.4rem 0.15rem !important;
         white-space: nowrap !important;
     }
 
@@ -292,39 +292,51 @@ except Exception as e:
 # =========================================================
 st.subheader("➕ Add Student")
 
-# Compact numpad - phone friendly
-for row_index, row in enumerate(pad_rows):
-    spacer_left, col1, col2, col3, spacer_right = st.columns(
-        [0.8, 1, 1, 1, 0.8],
-        gap="small"
-    )
+seat_display = st.session_state.seat_no_text or "—"
 
-    button_cols = [col1, col2, col3]
+st.markdown(
+    f"<div class='seat-display'>{seat_display}</div>",
+    unsafe_allow_html=True,
+)
 
-    for col, key in zip(button_cols, row):
-        with col:
-            if key == "C":
-                st.button(
-                    "C",
-                    key=f"pad_clear_{row_index}",
-                    on_click=clear_digits,
-                    use_container_width=True,
-                )
-            elif key == "⌫":
-                st.button(
-                    "⌫",
-                    key=f"pad_backspace_{row_index}",
-                    on_click=backspace_digit,
-                    use_container_width=True,
-                )
-            else:
-                st.button(
-                    key,
-                    key=f"pad_{key}_{row_index}",
-                    on_click=append_digit,
-                    args=(key,),
-                    use_container_width=True,
-                )
+pad_rows = [
+    ["1", "2", "3"],
+    ["4", "5", "6"],
+    ["7", "8", "9"],
+    ["C", "0", "⌫"],
+]
+
+# Keypad - fixed width, centred
+keypad_left, keypad_mid, keypad_right = st.columns([0.12, 0.76, 0.12])
+
+with keypad_mid:
+    for row_index, row in enumerate(pad_rows):
+        cols = st.columns(3, gap="small")
+
+        for col, key in zip(cols, row):
+            with col:
+                if key == "C":
+                    st.button(
+                        "C",
+                        key=f"pad_clear_{row_index}",
+                        on_click=clear_digits,
+                        use_container_width=True,
+                    )
+                elif key == "⌫":
+                    st.button(
+                        "⌫",
+                        key=f"pad_backspace_{row_index}",
+                        on_click=backspace_digit,
+                        use_container_width=True,
+                    )
+                else:
+                    st.button(
+                        key,
+                        key=f"pad_{key}_{row_index}",
+                        on_click=append_digit,
+                        args=(key,),
+                        use_container_width=True,
+                    )
 
 st.markdown("### Gender")
 
