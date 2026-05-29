@@ -31,11 +31,11 @@ SGT = ZoneInfo("Asia/Singapore")
 # =========================================================
 st.title("🚻 Toilet Queue System")
 
-password = st.text_input("Enter event password", type="password")
+# password = st.text_input("Enter event password", type="password")
 
-if password != st.secrets["APP_PASSWORD"]:
-    st.warning("Please enter the correct password to continue.")
-    st.stop()
+# if password != st.secrets["APP_PASSWORD"]:
+#     st.warning("Please enter the correct password to continue.")
+#     st.stop()
 
 
 # =========================================================
