@@ -193,11 +193,31 @@ class ToiletQueueCore:
         if toilet not in LOCATIONS:
             return False, "Invalid toilet selected."
 
+        # Rule 1: Gender validation
         is_valid, message = validate_assignment(gender, toilet)
 
         if not is_valid:
             return False, message
 
+        # Rule 2: Toilet occupancy validation
+        # If the selected toilet already has someone In Progress, block assignment.
+        existing_in_progress = self._execute(
+            self.supabase.table("toilet_queue")
+            .select("*")
+            .eq("location", toilet)
+            .eq("status", STATUS_IN_PROGRESS)
+        )
+
+        if existing_in_progress:
+            toilet_label = TOILET_LABELS.get(toilet, toilet)
+            current_user = existing_in_progress[0].get("queue_code", "another student")
+
+            return (
+                False,
+                f"{toilet_label} Toilet is currently in use by {current_user}. Please wait until they return."
+            )
+
+        # Rule 3: Assign toilet and change status to In Progress
         self._execute(
             self.supabase.table("toilet_queue")
             .update({
