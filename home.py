@@ -41,11 +41,10 @@ st.title("🚻 Toilet Queue System")
 # =========================================================
 # SUPABASE CONNECTION
 # =========================================================
-SUPABASE_URL = st.secrets["SUPABASE_URL"]
-SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+NEXT_PUBLIC_SUPABASE_URL = st.secrets["SUPABASE_URL"]
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = st.secrets["SUPABASE_KEY"]
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-
+supabase = create_client(NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
 
 # =========================================================
 # HELPER FUNCTIONS
@@ -247,7 +246,10 @@ def delete_archived_records():
 # =========================================================
 # AUTO ARCHIVE OLD RETURNED RECORDS
 # =========================================================
-archive_old_returned()
+try:
+    archive_old_returned()
+except Exception as e:
+    st.warning("Archive check skipped. Please check Supabase table or permissions.")
 
 
 # =========================================================
