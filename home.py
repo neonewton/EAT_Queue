@@ -7,7 +7,9 @@ import streamlit as st
 from supabase import create_client
 from streamlit_autorefresh import st_autorefresh
 
+from theme import apply_ntu_purple_theme
 
+apply_ntu_purple_theme()
 
 # =========================================================
 # STREAMLIT CONFIG
