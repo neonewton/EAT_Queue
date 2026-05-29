@@ -1,11 +1,12 @@
 import time
 from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
-from streamlit_autorefresh import st_autorefresh
 
 import pandas as pd
 import streamlit as st
 from supabase import create_client
+from streamlit_autorefresh import st_autorefresh
+
 
 
 # =========================================================
