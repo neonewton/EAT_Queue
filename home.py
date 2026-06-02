@@ -352,15 +352,6 @@ except Exception as e:
 # =========================================================
 # ADD STUDENT SECTION
 # =========================================================
-st.subheader("➕ Add Student")
-
-seat_display = st.session_state.seat_no_text or "—"
-
-st.markdown(
-    f"<div class='seat-display'>{seat_display}</div>",
-    unsafe_allow_html=True,
-)
-
 gender_cols = st.columns(2)
 
 with gender_cols[0]:
@@ -382,6 +373,17 @@ with gender_cols[1]:
         args=("Female",),
         use_container_width=True,
     )
+
+st.subheader("➕ Add Student")
+
+seat_display = st.session_state.seat_no_text or "—"
+
+st.markdown(
+    f"<div class='seat-display'>{seat_display}</div>",
+    unsafe_allow_html=True,
+)
+
+
 
 pad_rows = [
     ["1", "2", "3"],
