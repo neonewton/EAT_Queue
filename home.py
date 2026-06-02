@@ -352,6 +352,9 @@ except Exception as e:
 # =========================================================
 # ADD STUDENT SECTION
 # =========================================================
+
+st.markdown("### Gender")
+
 gender_cols = st.columns(2)
 
 with gender_cols[0]:
@@ -423,8 +426,6 @@ with keypad_mid:
                         args=(key,),
                         use_container_width=True,
                     )
-
-st.markdown("### Gender")
 
 
 
