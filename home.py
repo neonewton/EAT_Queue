@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
+from datetime import datetime, timezone
 
 from core import (
     ToiletQueueCore,
@@ -12,6 +13,7 @@ from core import (
     STATUS_RETURNED,
     format_datetime,
     get_queue_code,
+    SGT,
 )
 
 try:
@@ -146,12 +148,48 @@ st.markdown(
         margin-bottom: 0.35rem;
     }
 
+    .call-nudge {
+        border: 3px solid #d00000;
+        border-radius: 18px;
+        padding: 0.75rem;
+        animation: nudgePulse 0.35s ease-in-out 0s 8 alternate;
+        background-color: #fff5f5;
+    }
+
+    .normal-card-content {
+        border: 1px solid transparent;
+        border-radius: 18px;
+        padding: 0.75rem;
+    }
+
+    @keyframes nudgePulse {
+        0% {
+            border-color: #d00000;
+            box-shadow: 0 0 0px rgba(208, 0, 0, 0.2);
+            transform: translateX(0);
+        }
+        25% {
+            transform: translateX(-3px);
+        }
+        50% {
+            border-color: #ff0000;
+            box-shadow: 0 0 14px rgba(208, 0, 0, 0.65);
+            transform: translateX(3px);
+        }
+        100% {
+            border-color: #d00000;
+            box-shadow: 0 0 4px rgba(208, 0, 0, 0.35);
+            transform: translateX(0);
+        }
+    }
+
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     </style>
     """,
     unsafe_allow_html=True,
+
 )
 
 
@@ -275,6 +313,30 @@ def move_down_callback(row_id):
     except Exception as e:
         set_message(False, f"Failed to move down: {e}")
 
+
+def is_recent_call(called_at_raw, seconds=3):
+    if not called_at_raw:
+        return False
+
+    try:
+        called_at = datetime.fromisoformat(
+            str(called_at_raw).replace("Z", "+00:00")
+        )
+
+        now = datetime.now(timezone.utc)
+
+        return (now - called_at).total_seconds() <= seconds
+
+    except Exception:
+        return False
+    
+def call_callback(row_id, queue_code):
+    try:
+        ok, message = core.call_student(row_id, queue_code)
+        set_message(ok, message)
+
+    except Exception as e:
+        set_message(False, f"Failed to call student: {e}")
 
 # =========================================================
 # AUTO REFRESH + ARCHIVE
@@ -429,16 +491,15 @@ else:
         assigned_at = format_datetime(row.get("assigned_at"))
         returned_at = format_datetime(row.get("returned_at"))
 
+        called_at = row.get("called_at")
+        is_called_recently = is_recent_call(called_at, seconds=6)
+        content_class = "call-nudge" if is_called_recently else "normal-card-content"
+
         with st.container(border=True):
             if status == STATUS_RETURNED:
                 code_display = f"✅ {queue_code}"
             else:
                 code_display = f"{index}. {queue_code}"
-
-            st.markdown(
-                f"<div class='queue-code'>{code_display}</div>",
-                unsafe_allow_html=True,
-            )
 
             if status == STATUS_IN_PROGRESS:
                 status_display = "<span class='status-inprogress'>IN PROGRESS</span>"
@@ -447,13 +508,16 @@ else:
 
             st.markdown(
                 f"""
-                <div class='queue-meta'>
-                    <b>Seat:</b> {seat}<br>
-                    <b>Status:</b> {status_display}<br>
-                    <b>Gender:</b> {gender}<br>
-                    <b>Toilet:</b> {toilet_label}<br>
-                    <b>Assigned:</b> {assigned_at}<br>
-                    <b>Returned:</b> {returned_at}
+                <div class="{content_class}">
+                    <div class="queue-code">{code_display}</div>
+                    <div class="queue-meta">
+                        <b>Seat:</b> {seat}<br>
+                        <b>Status:</b> {status_display}<br>
+                        <b>Gender:</b> {gender}<br>
+                        <b>Toilet:</b> {toilet_label}<br>
+                        <b>Assigned:</b> {assigned_at}<br>
+                        <b>Returned:</b> {returned_at}
+                    </div>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -515,14 +579,26 @@ else:
                     )
 
             elif status == STATUS_IN_PROGRESS:
-                st.button(
-                    "✅ Return",
-                    key=f"return_{row_id}",
-                    type="primary",
-                    on_click=return_callback,
-                    args=(row_id, queue_code),
-                    use_container_width=True,
-                )
+                action_cols = st.columns(2)
+
+                with action_cols[0]:
+                    st.button(
+                        "📣 Call",
+                        key=f"call_{row_id}",
+                        on_click=call_callback,
+                        args=(row_id, queue_code),
+                        use_container_width=True,
+                    )
+
+                with action_cols[1]:
+                    st.button(
+                        "✅ Return",
+                        key=f"return_{row_id}",
+                        type="primary",
+                        on_click=return_callback,
+                        args=(row_id, queue_code),
+                        use_container_width=True,
+                    )
 
             elif status == STATUS_RETURNED:
                 st.caption("Returned — will hide after 10 seconds.")
@@ -552,6 +628,7 @@ with st.expander("📊 Queue Log / Export CSV"):
             "queue_order",
             "assigned_at",
             "returned_at",
+            "called_at",
             "created_at",
         ]
 

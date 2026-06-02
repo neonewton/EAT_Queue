@@ -287,3 +287,15 @@ class ToiletQueueCore:
                 return True, f"{row['queue_code']} moved down."
 
         return False, "Already at the bottom."
+    
+    def call_student(self, row_id, queue_code):
+        self._execute(
+            self.supabase.table("toilet_queue")
+            .update({
+                "called_at": now_utc_iso(),
+            })
+            .eq("id", row_id)
+            .select("*")
+        )
+
+        return True, f"{queue_code} called."
