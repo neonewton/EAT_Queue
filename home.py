@@ -361,6 +361,28 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+gender_cols = st.columns(2)
+
+with gender_cols[0]:
+    st.button(
+        "Male",
+        key="gender_male",
+        type="primary" if st.session_state.selected_gender == "Male" else "secondary",
+        on_click=select_gender,
+        args=("Male",),
+        use_container_width=True,
+    )
+
+with gender_cols[1]:
+    st.button(
+        "Female",
+        key="gender_female",
+        type="primary" if st.session_state.selected_gender == "Female" else "secondary",
+        on_click=select_gender,
+        args=("Female",),
+        use_container_width=True,
+    )
+
 pad_rows = [
     ["1", "2", "3"],
     ["4", "5", "6"],
@@ -402,27 +424,7 @@ with keypad_mid:
 
 st.markdown("### Gender")
 
-gender_cols = st.columns(2)
 
-with gender_cols[0]:
-    st.button(
-        "Male",
-        key="gender_male",
-        type="primary" if st.session_state.selected_gender == "Male" else "secondary",
-        on_click=select_gender,
-        args=("Male",),
-        use_container_width=True,
-    )
-
-with gender_cols[1]:
-    st.button(
-        "Female",
-        key="gender_female",
-        type="primary" if st.session_state.selected_gender == "Female" else "secondary",
-        on_click=select_gender,
-        args=("Female",),
-        use_container_width=True,
-    )
 
 preview_code = (
     get_queue_code(st.session_state.seat_no_text, st.session_state.selected_gender)
