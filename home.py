@@ -52,7 +52,7 @@ st.markdown(
 
     h1 {
         text-align: center !important;
-        font-size: 0.1rem !important;
+        font-size: 1.45rem !important;
         margin-bottom: 0.1rem !important;
     }
 
@@ -62,7 +62,7 @@ st.markdown(
     }
 
     div[data-testid="stHorizontalBlock"] {
-        gap: 0.3rem !important;
+        gap: 0.1rem !important;
     }
 
     div[data-testid="column"] {
