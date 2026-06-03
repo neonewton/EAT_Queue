@@ -496,25 +496,6 @@ def render_queue_card(index, row):
     )
 
     if status == STATUS_QUEUED:
-        arrow_cols = st.columns(2)
-
-        with arrow_cols[0]:
-            st.button(
-                "⬆️",
-                key=f"up_{row_id}",
-                on_click=move_up_callback,
-                args=(row_id,),
-                use_container_width=True,
-            )
-
-        with arrow_cols[1]:
-            st.button(
-                "⬇️",
-                key=f"down_{row_id}",
-                on_click=move_down_callback,
-                args=(row_id,),
-                use_container_width=True,
-            )
 
         st.markdown("<div class='small-title'>Assign Toilet</div>", unsafe_allow_html=True)
 
@@ -546,6 +527,26 @@ def render_queue_card(index, row):
                 args=(row_id, queue_code, gender, "Handicap"),
                 use_container_width=True,
             )
+
+            arrow_cols = st.columns(2)
+
+            with arrow_cols[0]:
+                st.button(
+                    "⬆️",
+                    key=f"up_{row_id}",
+                    on_click=move_up_callback,
+                    args=(row_id,),
+                    use_container_width=True,
+                )
+
+            with arrow_cols[1]:
+                st.button(
+                    "⬇️",
+                    key=f"down_{row_id}",
+                    on_click=move_down_callback,
+                    args=(row_id,),
+                    use_container_width=True,
+                )
 
     elif status == STATUS_IN_PROGRESS:
         action_cols = st.columns(2)
