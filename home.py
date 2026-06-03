@@ -121,6 +121,47 @@ st.markdown(
         width: auto !important;
     }
 
+    /* Numpad wrapper */
+    .st-key-numpad {
+        width: 260px !important;
+        max-width: 260px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    /* Make numpad rows stay inside wrapper */
+    .st-key-numpad div[data-testid="stHorizontalBlock"] {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Numpad button size */
+    .st-key-numpad div[data-testid="stButton"] > button {
+        width: 100% !important;
+        min-height: 46px !important;
+        padding: 0.25rem !important;
+    }
+
+    /* Queue top row wrapper */
+    .st-key-queue-top-row {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    /* Small arrow area */
+    [class*="st-key-arrow-box"] {
+        width: 76px !important;
+        max-width: 76px !important;
+        margin-left: auto !important;
+    }
+
+    [class*="st-key-arrow-box"] div[data-testid="stButton"] > button {
+        width: 100% !important;
+        min-height: 38px !important;
+        padding: 0.15rem !important;
+    }
+
     div[data-testid="stButton"] > button {
         min-width: 0 !important;
         min-height: 44px !important;
@@ -569,9 +610,7 @@ else:
 
             with top_right:
                 if status == STATUS_QUEUED:
-                    arrow_cols = st.columns(2)
-
-                    with arrow_cols[0]:
+                    with st.container(key=f"arrow-box-{row_id}"):
                         st.button(
                             "⬆️",
                             key=f"up_{row_id}",
@@ -580,7 +619,6 @@ else:
                             use_container_width=True,
                         )
 
-                    with arrow_cols[1]:
                         st.button(
                             "⬇️",
                             key=f"down_{row_id}",
