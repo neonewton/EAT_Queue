@@ -600,13 +600,13 @@ else:
             if status == STATUS_RETURNED:
                 returned_html = f"<b>Returned:</b> {returned_at}<br>"
 
-            top_left, top_right = st.columns([0.34, 0.66])
+            top_left, top_right = st.columns([0.42, 0.58])
 
             with top_left:
                 st.markdown(
                     f"""
                     <div class="{content_class}" style="padding:0.2rem;">
-                        <div class="queue-code">{code_display}</div>
+                        <div class="queue-code" style="font-size:2.2rem; font-weight:900;">
                     </div>
                     """,
                     unsafe_allow_html=True,
