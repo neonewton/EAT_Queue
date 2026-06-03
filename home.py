@@ -584,6 +584,9 @@ def render_in_queue_summary(all_queue):
         if row.get("status") == STATUS_QUEUED and row.get("gender") == "Female"
     )
 
+    male_color = "#d00000" if male_count > 10 else "#222222"
+    female_color = "#d00000" if female_count > 10 else "#222222"
+
     st.markdown(
         f"""
         <div style="
@@ -595,8 +598,14 @@ def render_in_queue_summary(all_queue):
             font-weight:900;
             text-align:center;
             box-sizing:border-box;
+            line-height:1.5;
         ">
-            In Queue — Male: {male_count} &nbsp;&nbsp; Female: {female_count}
+            <div style="font-size:1rem;">In Queue</div>
+            <div style="font-size:1rem;">
+                <span style="color:{male_color};">Male: {male_count}</span>
+                <span style="color:#777;"> | </span>
+                <span style="color:{female_color};">Female: {female_count}</span>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
