@@ -106,7 +106,33 @@ st.markdown(
         visibility: hidden !important;
         height: 0 !important;
     }
-    </style>
+
+
+    div[data-testid="stHorizontalBlock"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 0.35rem !important;
+    width: 100% !important;
+    }
+
+    div[data-testid="column"] {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        width: auto !important;
+    }
+
+    div[data-testid="stButton"] > button {
+        min-width: 0 !important;
+        min-height: 44px !important;
+        border-radius: 14px !important;
+        font-size: 0.98rem !important;
+        font-weight: 800 !important;
+        padding: 0.35rem 0.2rem !important;
+        white-space: nowrap !important;
+    }
+
+        </style>
     """,
     unsafe_allow_html=True,
 )
@@ -392,37 +418,41 @@ pad_rows = [
     ["C", "0", "⌫"],
 ]
 
-# Keypad - fixed width, centred
-keypad_left, keypad_mid, keypad_right = st.columns([0.12, 0.76, 0.12])
 
-with keypad_mid:
-    for row_index, row in enumerate(pad_rows):
-        cols = st.columns(3, gap="small")
 
-        for col, key in zip(cols, row):
-            with col:
-                if key == "C":
-                    st.button(
-                        "C",
-                        key=f"pad_clear_{row_index}",
-                        on_click=clear_digits,
-                        use_container_width=False,
-                    )
-                elif key == "⌫":
-                    st.button(
-                        "⌫",
-                        key=f"pad_backspace_{row_index}",
-                        on_click=backspace_digit,
-                        use_container_width=False,
-                    )
-                else:
-                    st.button(
-                        key,
-                        key=f"pad_{key}_{row_index}",
-                        on_click=append_digit,
-                        args=(key,),
-                        use_container_width=False,
-                    )
+# Compact numpad - forced 3 buttons per row
+for row_index, row in enumerate(pad_rows):
+    spacer_left, col1, col2, col3, spacer_right = st.columns(
+        [0.45, 1, 1, 1, 0.45],
+        gap="small"
+    )
+
+    button_cols = [col1, col2, col3]
+
+    for col, key in zip(button_cols, row):
+        with col:
+            if key == "C":
+                st.button(
+                    "C",
+                    key=f"pad_clear_{row_index}",
+                    on_click=clear_digits,
+                    use_container_width=True,
+                )
+            elif key == "⌫":
+                st.button(
+                    "⌫",
+                    key=f"pad_backspace_{row_index}",
+                    on_click=backspace_digit,
+                    use_container_width=True,
+                )
+            else:
+                st.button(
+                    key,
+                    key=f"pad_{key}_{row_index}",
+                    on_click=append_digit,
+                    args=(key,),
+                    use_container_width=True,
+                )
 
 
 
