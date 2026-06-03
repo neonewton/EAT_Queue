@@ -280,6 +280,11 @@ st.markdown(
         padding-right: 0.75rem !important;
         padding-bottom: 1rem !important;
     }
+
+    div[data-testid="stButton"] > button {
+    min-height: 44px !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -711,22 +716,27 @@ else:
             if status == STATUS_RETURNED:
                 returned_html = f"<b>Returned:</b> {returned_at}<br>"
 
-            left_col, right_col = st.columns([0.38, 0.62])
+            top_left, top_mid, top_right = st.columns([0.34, 0.46, 0.20])
 
-            with left_col:
+            with top_left:
                 st.markdown(
                     f"""
-                    <div class="{content_class}">
+                    <div class="{content_class}" style="padding:0.2rem;">
                         <div class="queue-code">{code_display}</div>
                     </div>
                     """,
                     unsafe_allow_html=True,
                 )
 
-            with right_col:
+            with top_mid:
+                returned_html = ""
+
+                if status == STATUS_RETURNED:
+                    returned_html = f"<b>Returned:</b> {returned_at}<br>"
+
                 st.markdown(
                     f"""
-                    <div class="queue-meta">
+                    <div class="queue-meta" style="margin-top:0.15rem;">
                         <b>Status:</b> {status_display}<br>
                         <b>Toilet:</b> {toilet_label}<br>
                         <b>Assigned:</b> {assigned_at}<br>
@@ -735,6 +745,24 @@ else:
                     """,
                     unsafe_allow_html=True,
                 )
+
+            with top_right:
+                if status == STATUS_QUEUED:
+                    st.button(
+                        "⬆️",
+                        key=f"up_{row_id}",
+                        on_click=move_up_callback,
+                        args=(row_id,),
+                        use_container_width=True,
+                    )
+
+                    st.button(
+                        "⬇️",
+                        key=f"down_{row_id}",
+                        on_click=move_down_callback,
+                        args=(row_id,),
+                        use_container_width=True,
+                    )
 
                 if status == STATUS_QUEUED:
                     move_cols = st.columns(2)
