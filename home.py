@@ -181,6 +181,61 @@ st.markdown(
             box-shadow: 0 0 4px rgba(208, 0, 0, 0.35);
             transform: translateX(0);
         }
+
+        .toilet-status-row {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+            margin: 0.75rem 0 1rem 0;
+        }
+
+        .toilet-box {
+            flex: 1;
+            border: 2px solid #dddddd;
+            border-radius: 16px;
+            padding: 0.75rem 0.35rem;
+            text-align: center;
+            background-color: #ffffff;
+            min-height: 88px;
+        }
+
+        .toilet-box-free {
+            border-color: #2e7d32;
+            background-color: #f1fff1;
+        }
+
+        .toilet-box-busy {
+            border-color: #d00000;
+            background-color: #fff3f3;
+            animation: toiletPulse 0.9s ease-in-out infinite alternate;
+        }
+
+        .toilet-title {
+            font-size: 0.95rem;
+            font-weight: 900;
+            margin-bottom: 0.3rem;
+        }
+
+        .toilet-status {
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+
+        .toilet-code {
+            font-size: 1rem;
+            font-weight: 900;
+            color: #d00000;
+        }
+
+        @keyframes toiletPulse {
+            from {
+                box-shadow: 0 0 0 rgba(208, 0, 0, 0.15);
+            }
+            to {
+                box-shadow: 0 0 12px rgba(208, 0, 0, 0.35);
+            }
+        }
+        
     }
 
     #MainMenu {visibility: hidden;}
@@ -196,7 +251,7 @@ st.markdown(
 # =========================================================
 # PASSWORD + SUPABASE
 # =========================================================
-st.markdown("🚻 Toilet Queue")
+
 
 try:
     APP_PASSWORD = st.secrets["APP_PASSWORD"]
@@ -347,6 +402,43 @@ def call_callback(row_id, queue_code):
     except Exception as e:
         set_message(False, f"Failed to call student: {e}")
 
+def render_toilet_status_boxes(all_queue):
+    toilet_status = {
+        "Male": None,
+        "Female": None,
+        "Handicap": None,
+    }
+
+    for row in all_queue:
+        if row.get("status") == STATUS_IN_PROGRESS:
+            location = row.get("location")
+            if location in toilet_status:
+                toilet_status[location] = row.get("queue_code", "")
+
+    box_html = "<div class='toilet-status-row'>"
+
+    for toilet in LOCATIONS:
+        queue_code = toilet_status.get(toilet)
+        toilet_label = TOILET_LABELS.get(toilet, toilet)
+
+        if queue_code:
+            box_class = "toilet-box toilet-box-busy"
+            status_text = f"<div class='toilet-status'>IN USE</div><div class='toilet-code'>{queue_code}</div>"
+        else:
+            box_class = "toilet-box toilet-box-free"
+            status_text = "<div class='toilet-status'>Available</div>"
+
+        box_html += f"""
+        <div class="{box_class}">
+            <div class="toilet-title">{toilet_label}</div>
+            {status_text}
+        </div>
+        """
+
+    box_html += "</div>"
+
+    st.markdown(box_html, unsafe_allow_html=True)
+
 # =========================================================
 # AUTO REFRESH + ARCHIVE
 # =========================================================
@@ -361,6 +453,7 @@ except Exception as e:
 # =========================================================
 # ADD STUDENT SECTION
 # =========================================================
+st.markdown("🚻 Toilet Queue")
 
 st.markdown("### Gender")
 
@@ -368,7 +461,7 @@ gender_cols = st.columns(2)
 
 with gender_cols[0]:
     st.button(
-        "Male",
+        "♂️Male♂️",
         key="gender_male",
         type="primary" if st.session_state.selected_gender == "Male" else "secondary",
         on_click=select_gender,
@@ -378,7 +471,7 @@ with gender_cols[0]:
 
 with gender_cols[1]:
     st.button(
-        "Female",
+        "♀️Female♀️",
         key="gender_female",
         type="primary" if st.session_state.selected_gender == "Female" else "secondary",
         on_click=select_gender,
@@ -487,6 +580,8 @@ all_queue = sorted(
         x.get("created_at", ""),
     )
 )
+
+render_toilet_status_boxes(all_queue)
 
 if not all_queue:
     st.info("No active queue.")
