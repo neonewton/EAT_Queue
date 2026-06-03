@@ -228,7 +228,7 @@ st.markdown(
     .normal-card-content {
         border: 2px solid transparent;
         border-radius: 12px;
-        padding: 0.15rem;
+        padding: 0.1rem;
     }
 
     @keyframes nudgePulse {
