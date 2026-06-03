@@ -415,25 +415,33 @@ def render_toilet_status_boxes(all_queue):
             if location in toilet_status:
                 toilet_status[location] = row.get("queue_code", "")
 
-    html_parts = ["<div class='toilet-status-row'>"]
+    html_parts = [
+        "<div style='display:flex; flex-direction:row; gap:8px; width:100%; margin:10px 0 16px 0;'>"
+    ]
 
     for toilet in LOCATIONS:
         queue_code = toilet_status.get(toilet)
         toilet_label = TOILET_LABELS.get(toilet, toilet)
 
         if queue_code:
-            box_class = "toilet-box toilet-box-busy"
+            border_color = "#d00000"
+            bg_color = "#fff3f3"
             status_html = (
-                "<div class='toilet-status'>IN USE</div>"
-                f"<div class='toilet-code'>{queue_code}</div>"
+                "<div style='font-size:0.75rem; font-weight:800; color:#d00000;'>IN USE</div>"
+                f"<div style='font-size:0.95rem; font-weight:900; color:#d00000;'>{queue_code}</div>"
             )
         else:
-            box_class = "toilet-box toilet-box-free"
-            status_html = "<div class='toilet-status'>Available</div>"
+            border_color = "#2e7d32"
+            bg_color = "#f1fff1"
+            status_html = (
+                "<div style='font-size:0.75rem; font-weight:800; color:#2e7d32;'>Available</div>"
+            )
 
         html_parts.append(
-            f"<div class='{box_class}'>"
-            f"<div class='toilet-title'>{toilet_label}</div>"
+            f"<div style='flex:1; min-width:0; border:2px solid {border_color}; "
+            f"border-radius:14px; background:{bg_color}; padding:10px 4px; "
+            f"text-align:center; min-height:76px;'>"
+            f"<div style='font-size:0.8rem; font-weight:900; margin-bottom:6px;'>{toilet_label}</div>"
             f"{status_html}"
             f"</div>"
         )
