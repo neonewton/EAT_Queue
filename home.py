@@ -38,7 +38,7 @@ if apply_ntu_purple_theme:
 
 # =========================================================
 # MOBILE-FIRST CSS
-
+# =========================================================
 st.markdown(
     """
     <style>
@@ -107,6 +107,19 @@ st.markdown(
         height: 0 !important;
     }
 
+
+    div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 0.45rem !important;
+    }
+
+    div[data-testid="column"] {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        width: auto !important;
+    }
 
     div[data-testid="stButton"] > button {
         min-width: 0 !important;
