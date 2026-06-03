@@ -703,7 +703,7 @@ else:
                         key=f"call_{row_id}",
                         on_click=call_callback,
                         args=(row_id, queue_code),
-                        use_container_width=True,
+                        use_container_width=False,
                     )
 
                 with action_cols[1]:
@@ -713,7 +713,7 @@ else:
                         type="primary",
                         on_click=return_callback,
                         args=(row_id, queue_code),
-                        use_container_width=True,
+                        use_container_width=False,
                     )
 
             elif status == STATUS_RETURNED:
