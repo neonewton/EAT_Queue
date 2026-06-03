@@ -579,7 +579,7 @@ else:
             if status == STATUS_RETURNED:
                 returned_html = f"<b>Returned:</b> {returned_at}<br>"
 
-            top_left, top_mid, top_right = st.columns([0.34, 0.46, 0.20])
+            top_left, top_right = st.columns([0.34, 0.66])
 
             with top_left:
                 st.markdown(
@@ -591,7 +591,7 @@ else:
                     unsafe_allow_html=True,
                 )
 
-            with top_mid:
+            with top_right:
                 returned_html = ""
 
                 if status == STATUS_RETURNED:
@@ -599,7 +599,7 @@ else:
 
                 st.markdown(
                     f"""
-                    <div class="queue-meta" style="margin-top:0.15rem;">
+                    <div class="queue-meta queue-meta-safe">
                         <b>Status:</b> {status_display}<br>
                         <b>Toilet:</b> {toilet_label}<br>
                         <b>Assigned:</b> {assigned_at}<br>
@@ -609,9 +609,10 @@ else:
                     unsafe_allow_html=True,
                 )
 
-            with top_right:
                 if status == STATUS_QUEUED:
-                    with st.container(key=f"arrow-box-{row_id}"):
+                    arrow_cols = st.columns(2)
+
+                    with arrow_cols[0]:
                         st.button(
                             "⬆️",
                             key=f"up_{row_id}",
@@ -620,6 +621,7 @@ else:
                             use_container_width=True,
                         )
 
+                    with arrow_cols[1]:
                         st.button(
                             "⬇️",
                             key=f"down_{row_id}",
