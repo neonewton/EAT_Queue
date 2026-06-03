@@ -402,7 +402,7 @@ def move_down_callback(row_id):
 
 
 def render_toilet_status_boxes(all_queue):
-    
+
     toilet_status: Dict[str, Optional[Dict[str, Any]]] = {
         "Male": None,
         "Female": None,
@@ -605,12 +605,12 @@ def render_in_queue_summary(all_queue):
             width:100%;
             background:#f3f3f3;
             border-radius:14px;
-            padding:0.75rem;
-            margin:0.7rem 0 0.8rem 0;
+            padding:0.25rem;
+            margin:0.2rem 0 0.2rem 0;
             font-weight:900;
-            text-align:center;
+            text-align:left;
             box-sizing:border-box;
-            line-height:1.5;
+            line-height:1;
         ">
             <div style="font-size:1rem;">
                 <span style="color:{male_color};">Male: {male_count}</span>
@@ -751,6 +751,8 @@ else:
     for index, row in enumerate(all_queue, start=1):
         with st.container(border=True):
             render_queue_card(index, row)
+
+st.space(size="large")
 
 # =========================================================
 # LOG SECTION
