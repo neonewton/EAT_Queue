@@ -570,7 +570,16 @@ def add_student_callback():
 def render_link_button(label, params, primary=False):
     safe_label = html_lib.escape(label)
     css_class = "html-button html-button-primary" if primary else "html-button html-button-secondary"
-    return f"<a class='{css_class}' href='{make_url(params)}'>{safe_label}</a>"
+    url = make_url(params)
+
+    return (
+        f"<a class='{css_class}' "
+        f"href='{url}' "
+        f"target='_self' "
+        f"rel='self'>"
+        f"{safe_label}"
+        f"</a>"
+    )
 
 
 def render_gender_selector():
