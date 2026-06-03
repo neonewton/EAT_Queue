@@ -716,25 +716,24 @@ def render_queue_card(index, row):
             + "</div>"
         )
 
-    top_html = f"""
-    <div class="{content_class}">
-        <div class="queue-top">
-            <div class="queue-left">
-                <div class="queue-code">{html_lib.escape(code_display)}</div>
-            </div>
-
-            <div class="queue-right">
-                <div class="queue-meta">
-                    <b>Status:</b> {status_display}<br>
-                    <b>Toilet:</b> {html_lib.escape(toilet_label)}<br>
-                    <b>Assigned:</b> {html_lib.escape(assigned_at)}<br>
-                    {returned_html}
-                </div>
-                {arrows_html}
-            </div>
-        </div>
-    </div>
-    """
+    top_html = (
+        f"<div class='{content_class}'>"
+        f"<div class='queue-top'>"
+        f"<div class='queue-left'>"
+        f"<div class='queue-code'>{html_lib.escape(code_display)}</div>"
+        f"</div>"
+        f"<div class='queue-right'>"
+        f"<div class='queue-meta'>"
+        f"<b>Status:</b> {status_display}<br>"
+        f"<b>Toilet:</b> {html_lib.escape(toilet_label)}<br>"
+        f"<b>Assigned:</b> {html_lib.escape(assigned_at)}<br>"
+        f"{returned_html}"
+        f"</div>"
+        f"{arrows_html}"
+        f"</div>"
+        f"</div>"
+        f"</div>"
+    )
 
     st.markdown(top_html, unsafe_allow_html=True)
 
