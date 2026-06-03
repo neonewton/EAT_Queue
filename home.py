@@ -52,17 +52,17 @@ st.markdown(
 
     h1 {
         text-align: center !important;
-        font-size: 1.45rem !important;
-        margin-bottom: 0.6rem !important;
+        font-size: 0.1rem !important;
+        margin-bottom: 0.1rem !important;
     }
 
     h2, h3 {
-        margin-top: 0.55rem !important;
-        margin-bottom: 0.35rem !important;
+        margin-top: 0.1rem !important;
+        margin-bottom: 0.1rem !important;
     }
 
     div[data-testid="stHorizontalBlock"] {
-        gap: 0.45rem !important;
+        gap: 0.3rem !important;
     }
 
     div[data-testid="column"] {
@@ -377,7 +377,7 @@ with gender_cols[1]:
         use_container_width=True,
     )
 
-st.subheader("➕ Add Student")
+st.markdown("➕ Add Student")
 
 seat_display = st.session_state.seat_no_text or "—"
 
@@ -385,8 +385,6 @@ st.markdown(
     f"<div class='seat-display'>{seat_display}</div>",
     unsafe_allow_html=True,
 )
-
-
 
 pad_rows = [
     ["1", "2", "3"],
