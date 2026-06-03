@@ -42,25 +42,43 @@ if apply_ntu_purple_theme:
 st.markdown(
     """
     <style>
-    /* ===============================
-       MAIN APP CONTAINER
-    =============================== */
+    /* Force full page to behave normally */
+    html, body {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
 
-    /* Reset Streamlit app container */
+    .stApp {
+        width: 100% !important;
+        margin: 0 auto !important;
+    }
+
+    /* Streamlit outer app container */
     [data-testid="stAppViewContainer"] {
-        display: block !important;
         width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        display: block !important;
     }
 
-    [data-testid="stAppViewContainer"] > .main {
-        display: block !important;
+    /* Streamlit main area */
+    [data-testid="stMain"],
+    section.main,
+    .main {
         width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        display: block !important;
     }
 
-    /* Center the actual app content */
+    /* Actual content block */
+    [data-testid="stMainBlockContainer"],
     .block-container {
-        max-width: 430px !important;
         width: 100% !important;
+        max-width: 430px !important;
         margin-left: auto !important;
         margin-right: auto !important;
         padding-top: 0.1rem !important;
@@ -70,246 +88,14 @@ st.markdown(
         box-sizing: border-box !important;
     }
 
-    /* ===============================
-       HIDE STREAMLIT DEFAULT UI
-    =============================== */
-    #MainMenu {
-        display: none !important;
-    }
-
-    footer {
-        display: none !important;
-    }
-
-    header {
-        display: none !important;
-    }
-
+    /* Hide Streamlit default UI */
+    #MainMenu,
+    footer,
+    header,
     [data-testid="stHeader"] {
         display: none !important;
-    }
-
-    /* ===============================
-       TEXT SPACING
-    =============================== */
-    h1 {
-        text-align: center !important;
-        font-size: 1.45rem !important;
-        margin-bottom: 0.1rem !important;
-    }
-
-    h2, h3 {
-        margin-top: 0.1rem !important;
-        margin-bottom: 0.1rem !important;
-    }
-
-    /* ===============================
-       FORCE COLUMNS TO STAY HORIZONTAL
-       ON MOBILE
-    =============================== */
-    div[data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        gap: 0.45rem !important;
-    }
-
-    div[data-testid="column"] {
-        flex: 1 1 0 !important;
-        min-width: 0 !important;
-        width: auto !important;
-    }
-
-    /* ===============================
-       BUTTONS
-    =============================== */
-    div[data-testid="stButton"] > button {
-        width: 100% !important;
-        min-width: 0 !important;
-        min-height: 44px !important;
-        border-radius: 14px !important;
-        font-size: 0.98rem !important;
-        font-weight: 800 !important;
-        padding: 0.4rem 0.15rem !important;
-        white-space: nowrap !important;
-    }
-
-    /* ===============================
-       ADD STUDENT SECTION
-    =============================== */
-    .seat-display {
-        width: 100%;
-        border: 2px solid #d9d9d9;
-        border-radius: 18px;
-        text-align: center;
-        padding: 0.85rem 0;
-        margin: 0.4rem 0 0.75rem 0;
-        font-size: 2.4rem;
-        font-weight: 900;
-        background-color: #fafafa;
-        letter-spacing: 0.08rem;
-    }
-
-    .preview-box {
-        width: 100%;
-        text-align: center;
-        font-size: 1.15rem;
-        font-weight: 800;
-        padding: 0.8rem 0;
-        border-radius: 14px;
-        background-color: #f3f3f3;
-        margin: 0.85rem 0;
-    }
-
-    /* ===============================
-       STATUS MESSAGE BOXES
-    =============================== */
-    .success-note {
-        text-align: center;
-        font-weight: 800;
-        padding: 0.65rem;
-        border-radius: 12px;
-        background-color: #f4f4f4;
-        margin-bottom: 0.6rem;
-    }
-
-    .error-note {
-        text-align: center;
-        font-weight: 800;
-        padding: 0.65rem;
-        border-radius: 12px;
-        background-color: #ffecec;
-        color: #b00020;
-        margin-bottom: 0.6rem;
-    }
-
-    /* ===============================
-       ACTIVE QUEUE CARD
-    =============================== */
-    .queue-code {
-        font-size: 1.8rem;
-        font-weight: 900;
-        margin-bottom: 0.35rem;
-    }
-
-    .queue-meta {
-        font-size: 0.92rem;
-        color: #555;
-        line-height: 1.55;
-        margin-bottom: 0.75rem;
-    }
-
-    .status-inprogress {
-        color: #d00000;
-        font-weight: 900;
-        font-size: 1rem;
-    }
-
-    .assign-title {
-        font-size: 0.95rem;
-        font-weight: 900;
-        margin-top: 0.35rem;
-        margin-bottom: 0.35rem;
-    }
-
-    .normal-card-content {
-        border: 2px solid transparent;
-        border-radius: 10px;
-        padding: 0.15rem;
-    }
-
-    .call-nudge {
-        border: 3px solid #d00000;
-        border-radius: 18px;
-        padding: 0.75rem;
-        animation: nudgePulse 0.35s ease-in-out 0s 10 alternate;
-        background-color: #fff5f5;
-    }
-
-    /* ===============================
-       TOILET STATUS BOXES
-    =============================== */
-    .toilet-status-row {
-        display: flex;
-        flex-direction: row;
-        gap: 0.5rem;
-        width: 100%;
-        margin: 0.75rem 0 1rem 0;
-    }
-
-    .toilet-box {
-        flex: 1;
-        border: 2px solid #dddddd;
-        border-radius: 16px;
-        padding: 0.75rem 0.35rem;
-        text-align: center;
-        background-color: #ffffff;
-        min-height: 88px;
-    }
-
-    .toilet-box-free {
-        border-color: #2e7d32;
-        background-color: #f1fff1;
-    }
-
-    .toilet-box-busy {
-        border-color: #d00000;
-        background-color: #fff3f3;
-        animation: toiletPulse 0.9s ease-in-out infinite alternate;
-    }
-
-    .toilet-title {
-        font-size: 0.9rem;
-        font-weight: 900;
-        margin-bottom: 0.3rem;
-    }
-
-    .toilet-status {
-        font-size: 0.8rem;
-        font-weight: 800;
-    }
-
-    .toilet-code {
-        font-size: 1rem;
-        font-weight: 900;
-        color: #d00000;
-    }
-
-    /* ===============================
-       ANIMATIONS
-    =============================== */
-    @keyframes nudgePulse {
-        0% {
-            border-color: #d00000;
-            box-shadow: 0 0 0px rgba(208, 0, 0, 0.2);
-            transform: translateX(0);
-        }
-
-        25% {
-            transform: translateX(-3px);
-        }
-
-        50% {
-            border-color: #ff0000;
-            box-shadow: 0 0 14px rgba(208, 0, 0, 0.65);
-            transform: translateX(3px);
-        }
-
-        100% {
-            border-color: #d00000;
-            box-shadow: 0 0 4px rgba(208, 0, 0, 0.35);
-            transform: translateX(0);
-        }
-    }
-
-    @keyframes toiletPulse {
-        from {
-            box-shadow: 0 0 0 rgba(208, 0, 0, 0.15);
-        }
-
-        to {
-            box-shadow: 0 0 12px rgba(208, 0, 0, 0.35);
-        }
+        visibility: hidden !important;
+        height: 0 !important;
     }
     </style>
     """,
