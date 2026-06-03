@@ -110,12 +110,16 @@ st.markdown(
 
 
     div[data-testid="stHorizontalBlock"] {
-        gap: 0.1rem !important;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 0.45rem !important;
     }
 
     div[data-testid="column"] {
+        flex: 1 1 0 !important;
         min-width: 0 !important;
-
+        width: auto !important;
     }
 
     /* Numpad wrapper */
