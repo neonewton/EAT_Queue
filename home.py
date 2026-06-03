@@ -528,7 +528,7 @@ def render_queue_card(index, row):
                 use_container_width=True,
             )
 
-            arrow_cols = st.columns(2)
+            arrow_cols = st.columns(2, gap="small")
 
             with arrow_cols[0]:
                 st.button(
@@ -549,7 +549,7 @@ def render_queue_card(index, row):
                 )
 
     elif status == STATUS_IN_PROGRESS:
-        action_cols = st.columns(2)
+        action_cols = st.columns(2, gap="small")
 
         with action_cols[0]:
             st.button(
@@ -592,7 +592,7 @@ st.markdown("<div class='app-title'>🚻 Toilet Queue</div>", unsafe_allow_html=
 
 st.markdown("<div class='section-title'>Gender</div>", unsafe_allow_html=True)
 
-gender_cols = st.columns(2)
+gender_cols = st.columns(2, gap="small")
 
 with gender_cols[0]:
     st.button(
