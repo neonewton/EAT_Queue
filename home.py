@@ -418,42 +418,35 @@ pad_rows = [
     ["C", "0", "⌫"],
 ]
 
-
-
-# Compact numpad - forced 3 buttons per row
 for row_index, row in enumerate(pad_rows):
-    spacer_left, col1, col2, col3, spacer_right = st.columns(
-        [0.45, 1, 1, 1, 0.45],
-        gap="small"
-    )
+    num_cols = st.columns(3)
 
-    button_cols = [col1, col2, col3]
-
-    for col, key in zip(button_cols, row):
-        with col:
+    for col_index, key in enumerate(row):
+        with num_cols[col_index]:
             if key == "C":
                 st.button(
                     "C",
-                    key=f"pad_clear_{row_index}",
+                    key=f"pad_clear_{row_index}_{col_index}",
                     on_click=clear_digits,
                     use_container_width=True,
                 )
+
             elif key == "⌫":
                 st.button(
                     "⌫",
-                    key=f"pad_backspace_{row_index}",
+                    key=f"pad_backspace_{row_index}_{col_index}",
                     on_click=backspace_digit,
                     use_container_width=True,
                 )
+
             else:
                 st.button(
                     key,
-                    key=f"pad_{key}_{row_index}",
+                    key=f"pad_{key}_{row_index}_{col_index}",
                     on_click=append_digit,
                     args=(key,),
                     use_container_width=True,
                 )
-
 
 
 preview_code = (
