@@ -119,9 +119,9 @@ st.markdown(
     div[data-testid="column"] {
         flex: 1 1 0 !important;
         min-width: 0 !important;
-        max-width: 100% !important;
+        max-width: 50% !important;
     }
-    
+
     /* Numpad wrapper */
     .st-key-numpad {
         width: 260px !important;
