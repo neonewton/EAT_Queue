@@ -745,7 +745,7 @@ else:
                             key=f"up_{row_id}",
                             on_click=move_up_callback,
                             args=(row_id,),
-                            use_container_width=True,
+                            use_container_width=False,
                         )
 
                     with move_cols[1]:
@@ -754,7 +754,7 @@ else:
                             key=f"down_{row_id}",
                             on_click=move_down_callback,
                             args=(row_id,),
-                            use_container_width=True,
+                            use_container_width=False,
                         )
 
             if status == STATUS_QUEUED:
