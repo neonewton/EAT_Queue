@@ -171,6 +171,17 @@ st.markdown(
         font-weight: 800 !important;
         padding: 0.35rem 0.2rem !important;
         white-space: nowrap !important;
+
+    .queue-meta-safe {
+        max-width: 100% !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+    }
+
+    .queue-code {
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
     }
 
         </style>
@@ -554,7 +565,12 @@ else:
         status = row.get("status", STATUS_QUEUED)
         gender = row.get("gender", "-")
         location = row.get("location", "Unassigned")
-        toilet_label = TOILET_LABELS.get(location, location)
+        toilet_label = {
+            "Unassigned": "Not assigned",
+            "Male": "🚹 Male",
+            "Female": "🚺 Female",
+            "Handicap": "♿ Handicap",
+        }.get(location, location)
 
         assigned_at = format_datetime(row.get("assigned_at"))
         returned_at = format_datetime(row.get("returned_at"))
