@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 
 import pandas as pd
 import streamlit as st
+from theme import apply_ntu_purple_theme
 from streamlit_autorefresh import st_autorefresh
 
 from core import (
@@ -15,6 +16,7 @@ from core import (
     get_queue_code,
 )
 
+apply_ntu_purple_theme()
 
 # =========================================================
 # STREAMLIT CONFIG
@@ -26,6 +28,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+apply_ntu_purple_theme()
 
 # =========================================================
 # CSS
