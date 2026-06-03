@@ -5,6 +5,9 @@ import pandas as pd
 import streamlit as st
 from theme import apply_ntu_purple_theme
 from streamlit_autorefresh import st_autorefresh
+import html as html_lib
+from typing import Optional, Dict, Any
+
 
 from core import (
     ToiletQueueCore,
@@ -399,7 +402,8 @@ def move_down_callback(row_id):
 
 
 def render_toilet_status_boxes(all_queue):
-    toilet_status = {
+    
+    toilet_status: Dict[str, Optional[Dict[str, Any]]] = {
         "Male": None,
         "Female": None,
         "Handicap": None,
@@ -608,7 +612,6 @@ def render_in_queue_summary(all_queue):
             box-sizing:border-box;
             line-height:1.5;
         ">
-            <div class='section-title'>⏱️ In Queue</div>
             <div style="font-size:1rem;">
                 <span style="color:{male_color};">Male: {male_count}</span>
                 <span style="color:#777;"> | </span>
@@ -728,6 +731,11 @@ all_queue = sorted(
     )
 )
 
+st.markdown(
+    "<div class='section-title'>⏱️ In Queue</div>",
+    unsafe_allow_html=True,
+)
+
 render_in_queue_summary(all_queue)
 
 st.markdown(
@@ -743,6 +751,7 @@ else:
     for index, row in enumerate(all_queue, start=1):
         with st.container(border=True):
             render_queue_card(index, row)
+
 # =========================================================
 # LOG SECTION
 # =========================================================
