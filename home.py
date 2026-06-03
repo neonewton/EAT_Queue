@@ -42,14 +42,50 @@ if apply_ntu_purple_theme:
 st.markdown(
     """
     <style>
+    /* ===============================
+       MAIN APP CONTAINER
+    =============================== */
+    [data-testid="stAppViewContainer"] {
+        display: flex !important;
+        justify-content: center !important;
+    }
+
+    [data-testid="stAppViewContainer"] > .main {
+        width: 100% !important;
+    }
+
     .block-container {
         max-width: 430px !important;
-        padding-top: 0.55rem !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        padding-top: 0.1rem !important;
         padding-left: 0.75rem !important;
         padding-right: 0.75rem !important;
         padding-bottom: 1rem !important;
     }
 
+    /* ===============================
+       HIDE STREAMLIT DEFAULT UI
+    =============================== */
+    #MainMenu {
+        display: none !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    header {
+        display: none !important;
+    }
+
+    [data-testid="stHeader"] {
+        display: none !important;
+    }
+
+    /* ===============================
+       TEXT SPACING
+    =============================== */
     h1 {
         text-align: center !important;
         font-size: 1.45rem !important;
@@ -61,17 +97,30 @@ st.markdown(
         margin-bottom: 0.1rem !important;
     }
 
+    /* ===============================
+       FORCE COLUMNS TO STAY HORIZONTAL
+       ON MOBILE
+    =============================== */
     div[data-testid="stHorizontalBlock"] {
-        gap: 0.1rem !important;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 0.45rem !important;
     }
 
     div[data-testid="column"] {
+        flex: 1 1 0 !important;
         min-width: 0 !important;
+        width: auto !important;
     }
 
+    /* ===============================
+       BUTTONS
+    =============================== */
     div[data-testid="stButton"] > button {
         width: 100% !important;
-        min-height: 54px !important;
+        min-width: 0 !important;
+        min-height: 44px !important;
         border-radius: 14px !important;
         font-size: 0.98rem !important;
         font-weight: 800 !important;
@@ -79,6 +128,9 @@ st.markdown(
         white-space: nowrap !important;
     }
 
+    /* ===============================
+       ADD STUDENT SECTION
+    =============================== */
     .seat-display {
         width: 100%;
         border: 2px solid #d9d9d9;
@@ -103,6 +155,9 @@ st.markdown(
         margin: 0.85rem 0;
     }
 
+    /* ===============================
+       STATUS MESSAGE BOXES
+    =============================== */
     .success-note {
         text-align: center;
         font-weight: 800;
@@ -122,6 +177,9 @@ st.markdown(
         margin-bottom: 0.6rem;
     }
 
+    /* ===============================
+       ACTIVE QUEUE CARD
+    =============================== */
     .queue-code {
         font-size: 1.8rem;
         font-weight: 900;
@@ -148,6 +206,12 @@ st.markdown(
         margin-bottom: 0.35rem;
     }
 
+    .normal-card-content {
+        border: 2px solid transparent;
+        border-radius: 10px;
+        padding: 0.15rem;
+    }
+
     .call-nudge {
         border: 3px solid #d00000;
         border-radius: 18px;
@@ -156,139 +220,94 @@ st.markdown(
         background-color: #fff5f5;
     }
 
-    .normal-card-content {
-        border: 2px solid transparent;
-        border-radius: 10px;
-        padding: 0.15rem;
+    /* ===============================
+       TOILET STATUS BOXES
+    =============================== */
+    .toilet-status-row {
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+        width: 100%;
+        margin: 0.75rem 0 1rem 0;
     }
 
+    .toilet-box {
+        flex: 1;
+        border: 2px solid #dddddd;
+        border-radius: 16px;
+        padding: 0.75rem 0.35rem;
+        text-align: center;
+        background-color: #ffffff;
+        min-height: 88px;
+    }
+
+    .toilet-box-free {
+        border-color: #2e7d32;
+        background-color: #f1fff1;
+    }
+
+    .toilet-box-busy {
+        border-color: #d00000;
+        background-color: #fff3f3;
+        animation: toiletPulse 0.9s ease-in-out infinite alternate;
+    }
+
+    .toilet-title {
+        font-size: 0.9rem;
+        font-weight: 900;
+        margin-bottom: 0.3rem;
+    }
+
+    .toilet-status {
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .toilet-code {
+        font-size: 1rem;
+        font-weight: 900;
+        color: #d00000;
+    }
+
+    /* ===============================
+       ANIMATIONS
+    =============================== */
     @keyframes nudgePulse {
         0% {
             border-color: #d00000;
             box-shadow: 0 0 0px rgba(208, 0, 0, 0.2);
             transform: translateX(0);
         }
+
         25% {
             transform: translateX(-3px);
         }
+
         50% {
             border-color: #ff0000;
             box-shadow: 0 0 14px rgba(208, 0, 0, 0.65);
             transform: translateX(3px);
         }
+
         100% {
             border-color: #d00000;
             box-shadow: 0 0 4px rgba(208, 0, 0, 0.35);
             transform: translateX(0);
         }
-
-        .toilet-status-row {
-            display: flex;
-            gap: 0.5rem;
-            width: 100%;
-            margin: 0.75rem 0 1rem 0;
-        }
-
-        .toilet-box {
-            flex: 1;
-            border: 2px solid #dddddd;
-            border-radius: 16px;
-            padding: 0.75rem 0.35rem;
-            text-align: center;
-            background-color: #ffffff;
-            min-height: 88px;
-        }
-
-        .toilet-box-free {
-            border-color: #2e7d32;
-            background-color: #f1fff1;
-        }
-
-        .toilet-box-busy {
-            border-color: #d00000;
-            background-color: #fff3f3;
-            animation: toiletPulse 0.9s ease-in-out infinite alternate;
-        }
-
-        .toilet-title {
-            font-size: 0.9rem;
-            font-weight: 900;
-            margin-bottom: 0.3rem;
-        }
-
-        .toilet-status {
-            font-size: 0.8rem;
-            font-weight: 800;
-        }
-
-        .toilet-code {
-            font-size: 1rem;
-            font-weight: 900;
-            color: #d00000;
-        }
-
-        @keyframes toiletPulse {
-            from {
-                box-shadow: 0 0 0 rgba(208, 0, 0, 0.15);
-            }
-            to {
-                box-shadow: 0 0 12px rgba(208, 0, 0, 0.35);
-            }
-        }
-
-        div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            gap: 0.45rem !important;
-        }
-
-        div[data-testid="column"] {
-            flex: 1 1 0 !important;
-            min-width: 0 !important;
-            width: auto !important;
-        }
-
-        div[data-testid="stButton"] > button {
-            width: 100% !important;
-            min-width: 0 !important;
-            white-space: nowrap !important;
-        }
-        
     }
 
-    #MainMenu {
-        display: none !important;
-    }
+    @keyframes toiletPulse {
+        from {
+            box-shadow: 0 0 0 rgba(208, 0, 0, 0.15);
+        }
 
-    footer {
-        display: none !important;
+        to {
+            box-shadow: 0 0 12px rgba(208, 0, 0, 0.35);
+        }
     }
-
-    header {
-        display: none !important;
-    }
-
-    [data-testid="stHeader"] {
-        display: none !important;
-    }
-
-    .block-container {
-        max-width: 430px !important;
-        padding-top: 0.1rem !important;
-        padding-left: 0.75rem !important;
-        padding-right: 0.75rem !important;
-        padding-bottom: 1rem !important;
-    }
-
-    div[data-testid="stButton"] > button {
-    min-height: 44px !important;
-    }
-
     </style>
     """,
     unsafe_allow_html=True,
-
 )
 
 
