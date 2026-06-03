@@ -1,5 +1,6 @@
-import re
+import html as html_lib
 from datetime import datetime, timezone
+from urllib.parse import urlencode
 
 import pandas as pd
 import streamlit as st
@@ -15,6 +16,11 @@ from core import (
     get_queue_code,
 )
 
+try:
+    from theme import apply_ntu_purple_theme
+except Exception:
+    apply_ntu_purple_theme = None
+
 
 # =========================================================
 # STREAMLIT CONFIG
@@ -26,12 +32,17 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+if apply_ntu_purple_theme:
+    apply_ntu_purple_theme()
+
 
 # =========================================================
 # CSS
 # =========================================================
 st.markdown(
     """
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <style>
     html, body, .stApp {
         width: 100% !important;
@@ -41,13 +52,25 @@ st.markdown(
         overflow-x: hidden !important;
     }
 
+    [data-testid="stAppViewContainer"],
+    [data-testid="stMain"],
+    section.main,
+    .main {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        display: block !important;
+        overflow-x: hidden !important;
+    }
+
     [data-testid="stMainBlockContainer"],
     .block-container {
         width: min(100vw, 430px) !important;
         max-width: 430px !important;
         margin-left: auto !important;
         margin-right: auto !important;
-        padding-top: 0.25rem !important;
+        padding-top: 0.1rem !important;
         padding-left: 0.75rem !important;
         padding-right: 0.75rem !important;
         padding-bottom: 1rem !important;
@@ -64,41 +87,46 @@ st.markdown(
         height: 0 !important;
     }
 
+    h1, h2, h3 {
+        margin-top: 0.15rem !important;
+        margin-bottom: 0.15rem !important;
+    }
+
     div[data-testid="stButton"] > button {
-        min-height: 44px !important;
+        min-height: 46px !important;
         border-radius: 14px !important;
         font-size: 0.95rem !important;
         font-weight: 800 !important;
-        padding: 0.35rem 0.35rem !important;
+        padding: 0.35rem 0.4rem !important;
         white-space: nowrap !important;
     }
 
     .app-title {
         font-size: 1rem;
         font-weight: 800;
-        margin: 0.3rem 0 0.6rem 0;
+        margin: 0.2rem 0 0.5rem 0;
     }
 
     .section-title {
-        font-size: 1.45rem;
+        font-size: 1.55rem;
         font-weight: 900;
-        margin: 0.8rem 0 0.45rem 0;
+        margin: 0.7rem 0 0.45rem 0;
     }
 
     .small-title {
         font-size: 1.05rem;
         font-weight: 800;
-        margin: 0.7rem 0 0.35rem 0;
+        margin: 0.55rem 0 0.35rem 0;
     }
 
-    .seat-preview {
+    .seat-display {
         width: 100%;
         border: 2px solid #d9d9d9;
         border-radius: 18px;
         text-align: center;
         padding: 0.75rem 0;
-        margin: 0.4rem 0 0.75rem 0;
-        font-size: 2.1rem;
+        margin: 0.35rem 0 0.7rem 0;
+        font-size: 2.3rem;
         font-weight: 900;
         background-color: #fafafa;
         letter-spacing: 0.08rem;
@@ -136,13 +164,78 @@ st.markdown(
         margin-bottom: 0.6rem;
     }
 
-    .toilet-status-row {
+    .html-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        border: 1.5px solid #7a005c;
+        border-radius: 14px;
+        background: #ffffff;
+        color: #7a005c;
+        font-weight: 800;
+        font-size: 0.95rem;
+        text-decoration: none !important;
+        box-sizing: border-box;
+        padding: 0.35rem 0.35rem;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .html-button-primary {
+        background: #70005d;
+        color: #ffffff !important;
+        border-color: #70005d;
+    }
+
+    .html-button-secondary {
+        background: #ffffff;
+        color: #70005d !important;
+        border-color: #70005d;
+    }
+
+    .gender-row,
+    .numpad-row,
+    .toilet-status-row,
+    .assign-row,
+    .action-row,
+    .arrow-row {
         display: flex;
         flex-direction: row;
-        gap: 0.5rem;
         width: 100%;
-        margin: 0.7rem 0 1rem 0;
         box-sizing: border-box;
+    }
+
+    .gender-row {
+        gap: 0.5rem;
+        margin: 0.45rem 0 0.75rem 0;
+    }
+
+    .gender-row .html-button {
+        flex: 1;
+    }
+
+    .numpad-wrap {
+        width: 100%;
+        max-width: 320px;
+        margin: 0 auto 0.8rem auto;
+        box-sizing: border-box;
+    }
+
+    .numpad-row {
+        gap: 0.45rem;
+        margin-bottom: 0.45rem;
+    }
+
+    .numpad-row .html-button {
+        flex: 1;
+        height: 46px;
+        min-height: 46px;
+    }
+
+    .toilet-status-row {
+        gap: 0.55rem;
+        margin: 0.7rem 0 1rem 0;
     }
 
     .toilet-box {
@@ -153,7 +246,7 @@ st.markdown(
         padding: 0.65rem 0.25rem;
         text-align: center;
         background-color: #f1fff1;
-        min-height: 74px;
+        min-height: 76px;
         box-sizing: border-box;
         overflow: hidden;
     }
@@ -184,26 +277,36 @@ st.markdown(
         margin-top: 0.1rem;
     }
 
-    .queue-card-top {
-        display: grid;
-        grid-template-columns: 38% 62%;
-        gap: 0.5rem;
+    .queue-top {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 0.6rem;
         width: 100%;
         box-sizing: border-box;
-        align-items: start;
+    }
+
+    .queue-left {
+        flex: 0 0 38%;
+        min-width: 0;
+    }
+
+    .queue-right {
+        flex: 1;
+        min-width: 0;
     }
 
     .queue-code {
-        font-size: 1.55rem;
+        font-size: 1.45rem;
         font-weight: 900;
         line-height: 1.2;
         word-break: break-word;
     }
 
     .queue-meta {
-        font-size: 0.9rem;
+        font-size: 0.92rem;
         color: #333333;
-        line-height: 1.5;
+        line-height: 1.55;
         word-break: break-word;
         overflow-wrap: anywhere;
     }
@@ -211,6 +314,12 @@ st.markdown(
     .status-inprogress {
         color: #d00000;
         font-weight: 900;
+    }
+
+    .normal-card-content {
+        border: 2px solid transparent;
+        border-radius: 12px;
+        padding: 0.15rem;
     }
 
     .call-nudge {
@@ -221,10 +330,44 @@ st.markdown(
         background-color: #fff5f5;
     }
 
-    .normal-card-content {
-        border: 2px solid transparent;
-        border-radius: 12px;
+    .arrow-row {
+        gap: 0.4rem;
+        margin-top: 0.45rem;
+        max-width: 110px;
+        margin-left: auto;
+    }
+
+    .arrow-row .html-button {
+        flex: 1;
+        height: 38px;
+        min-height: 38px;
+        font-size: 0.85rem;
         padding: 0.15rem;
+    }
+
+    .assign-title {
+        font-size: 0.95rem;
+        font-weight: 900;
+        margin: 0.7rem 0 0.35rem 0;
+    }
+
+    .assign-row {
+        gap: 0.35rem;
+    }
+
+    .assign-row .html-button {
+        flex: 1;
+        font-size: 0.85rem;
+        min-height: 42px;
+    }
+
+    .action-row {
+        gap: 0.45rem;
+        margin-top: 0.7rem;
+    }
+
+    .action-row .html-button {
+        flex: 1;
     }
 
     @keyframes nudgePulse {
@@ -269,11 +412,11 @@ core = ToiletQueueCore(SUPABASE_URL, SUPABASE_KEY)
 # =========================================================
 # SESSION STATE
 # =========================================================
+if "seat_no_text" not in st.session_state:
+    st.session_state.seat_no_text = ""
+
 if "selected_gender" not in st.session_state:
     st.session_state.selected_gender = "Male"
-
-if "seat_no_input" not in st.session_state:
-    st.session_state.seat_no_input = ""
 
 if "last_action_message" not in st.session_state:
     st.session_state.last_action_message = ""
@@ -283,10 +426,10 @@ if "last_action_ok" not in st.session_state:
 
 
 # =========================================================
-# HELPERS / CALLBACKS
+# HELPERS
 # =========================================================
-def clean_seat(value):
-    return re.sub(r"\D", "", str(value or ""))[:4]
+def make_url(params):
+    return "?" + urlencode(params)
 
 
 def set_message(ok, message):
@@ -294,7 +437,7 @@ def set_message(ok, message):
     st.session_state.last_action_message = message
 
 
-def is_recent_call(called_at_raw, seconds=6):
+def is_recent_call(called_at_raw, seconds=3):
     if not called_at_raw:
         return False
 
@@ -308,85 +451,175 @@ def is_recent_call(called_at_raw, seconds=6):
         return False
 
 
-def select_gender(gender):
-    st.session_state.selected_gender = gender
+def find_active_row(row_id):
+    try:
+        target_id = int(row_id)
+    except Exception:
+        target_id = row_id
+
+    rows = core.load_active_queue()
+
+    for row in rows:
+        if row.get("id") == target_id:
+            return row
+
+    return None
+
+
+def handle_query_actions():
+    gender_value = st.query_params.get("gender")
+    pad_value = st.query_params.get("pad")
+    action = st.query_params.get("action")
+    row_id = st.query_params.get("id")
+
+    if gender_value:
+        if gender_value in ["Male", "Female"]:
+            st.session_state.selected_gender = gender_value
+
+        st.query_params.clear()
+        st.rerun()
+
+    if pad_value:
+        if pad_value == "C":
+            st.session_state.seat_no_text = ""
+        elif pad_value == "BACK":
+            st.session_state.seat_no_text = st.session_state.seat_no_text[:-1]
+        elif pad_value.isdigit():
+            if len(st.session_state.seat_no_text) < 4:
+                st.session_state.seat_no_text += pad_value
+
+        st.query_params.clear()
+        st.rerun()
+
+    if action and row_id:
+        row = find_active_row(row_id)
+
+        if not row:
+            set_message(False, "Selected queue item is no longer active.")
+            st.query_params.clear()
+            st.rerun()
+
+        try:
+            target_id = int(row_id)
+        except Exception:
+            target_id = row_id
+
+        queue_code = row.get("queue_code", "")
+        gender = row.get("gender", "")
+
+        try:
+            if action == "assign":
+                toilet = st.query_params.get("toilet")
+
+                ok, message = core.assign_toilet(
+                    row_id=target_id,
+                    queue_code=queue_code,
+                    gender=gender,
+                    toilet=toilet,
+                )
+
+                if ok:
+                    call_ok, call_message = core.call_student(target_id, queue_code)
+
+                    if call_ok:
+                        set_message(True, f"{message} {call_message}")
+                    else:
+                        set_message(False, call_message)
+                else:
+                    set_message(False, message)
+
+            elif action == "return":
+                ok, message = core.mark_returned(target_id, queue_code)
+                set_message(ok, message)
+
+            elif action == "nudge":
+                ok, message = core.call_student(target_id, queue_code)
+                set_message(ok, message)
+
+            elif action == "up":
+                ok, message = core.move_up(target_id)
+                set_message(ok, message)
+
+            elif action == "down":
+                ok, message = core.move_down(target_id)
+                set_message(ok, message)
+
+        except Exception as e:
+            set_message(False, f"Action failed: {e}")
+
+        st.query_params.clear()
+        st.rerun()
 
 
 def add_student_callback():
     try:
-        seat_no = clean_seat(st.session_state.seat_no_input)
-
         ok, message = core.add_student(
-            seat_no=seat_no,
+            seat_no=st.session_state.seat_no_text,
             gender=st.session_state.selected_gender,
         )
 
         set_message(ok, message)
 
         if ok:
-            st.session_state.seat_no_input = ""
+            st.session_state.seat_no_text = ""
 
     except Exception as e:
         set_message(False, f"Failed to add student: {e}")
 
 
-def assign_toilet_callback(row_id, queue_code, gender, toilet):
-    try:
-        ok, message = core.assign_toilet(
-            row_id=row_id,
-            queue_code=queue_code,
-            gender=gender,
-            toilet=toilet,
-        )
+def render_link_button(label, params, primary=False):
+    safe_label = html_lib.escape(label)
+    css_class = "html-button html-button-primary" if primary else "html-button html-button-secondary"
+    url = make_url(params)
 
-        if ok:
-            call_ok, call_message = core.call_student(row_id, queue_code)
-
-            if call_ok:
-                set_message(True, f"{message} {call_message}")
-            else:
-                set_message(False, call_message)
-        else:
-            set_message(False, message)
-
-    except Exception as e:
-        set_message(False, f"Failed to assign toilet: {e}")
+    return (
+        f"<a class='{css_class}' "
+        f"href='{url}' "
+        f"target='_self' "
+        f"rel='self'>"
+        f"{safe_label}"
+        f"</a>"
+    )
 
 
-def return_callback(row_id, queue_code):
-    try:
-        ok, message = core.mark_returned(row_id, queue_code)
-        set_message(ok, message)
+def render_gender_selector():
+    male_primary = st.session_state.selected_gender == "Male"
+    female_primary = st.session_state.selected_gender == "Female"
 
-    except Exception as e:
-        set_message(False, f"Failed to mark returned: {e}")
+    html = (
+        "<div class='gender-row'>"
+        + render_link_button("Male ♂️", {"gender": "Male"}, primary=male_primary)
+        + render_link_button("Female ♀️", {"gender": "Female"}, primary=female_primary)
+        + "</div>"
+    )
 
-
-def call_callback(row_id, queue_code):
-    try:
-        ok, message = core.call_student(row_id, queue_code)
-        set_message(ok, message)
-
-    except Exception as e:
-        set_message(False, f"Failed to nudge student: {e}")
+    st.markdown(html, unsafe_allow_html=True)
 
 
-def move_up_callback(row_id):
-    try:
-        ok, message = core.move_up(row_id)
-        set_message(ok, message)
+def render_html_numpad():
+    pad_rows = [
+        ["1", "2", "3"],
+        ["4", "5", "6"],
+        ["7", "8", "9"],
+        ["C", "0", "BACK"],
+    ]
 
-    except Exception as e:
-        set_message(False, f"Failed to move up: {e}")
+    html_parts = ["<div class='numpad-wrap'>"]
 
+    for row in pad_rows:
+        html_parts.append("<div class='numpad-row'>")
 
-def move_down_callback(row_id):
-    try:
-        ok, message = core.move_down(row_id)
-        set_message(ok, message)
+        for key in row:
+            label = "⌫" if key == "BACK" else key
+            html_parts.append(
+                render_link_button(label, {"pad": key}, primary=False)
+            )
 
-    except Exception as e:
-        set_message(False, f"Failed to move down: {e}")
+        html_parts.append("</div>")
+
+    html_parts.append("</div>")
+
+    st.markdown("".join(html_parts), unsafe_allow_html=True)
 
 
 def render_toilet_status_boxes(all_queue):
@@ -419,11 +652,13 @@ def render_toilet_status_boxes(all_queue):
         toilet_label = toilet_labels.get(toilet, toilet)
 
         if current:
-            queue_code = current.get("queue_code", "")
+            queue_code = html_lib.escape(current.get("queue_code", ""))
             called_at = current.get("called_at")
+            is_called_recently = is_recent_call(called_at, seconds=6)
+
             animation_style = (
                 " style='animation:nudgePulse 0.35s ease-in-out 0s 8 alternate;'"
-                if is_recent_call(called_at, seconds=6)
+                if is_called_recently
                 else ""
             )
 
@@ -443,6 +678,7 @@ def render_toilet_status_boxes(all_queue):
             )
 
     html_parts.append("</div>")
+
     st.markdown("".join(html_parts), unsafe_allow_html=True)
 
 
@@ -450,7 +686,6 @@ def render_queue_card(index, row):
     row_id = row.get("id")
     queue_code = row.get("queue_code", "")
     status = row.get("status", STATUS_QUEUED)
-    gender = row.get("gender", "-")
     location = row.get("location", "Unassigned")
 
     toilet_label = {
@@ -464,112 +699,81 @@ def render_queue_card(index, row):
     returned_at = format_datetime(row.get("returned_at"))
 
     called_at = row.get("called_at")
-    content_class = "call-nudge" if is_recent_call(called_at, seconds=6) else "normal-card-content"
+    is_called_recently = is_recent_call(called_at, seconds=6)
+    content_class = "call-nudge" if is_called_recently else "normal-card-content"
 
-    code_display = f"✅ {queue_code}" if status == STATUS_RETURNED else f"{index}. {queue_code}"
+    if status == STATUS_RETURNED:
+        code_display = f"✅ {queue_code}"
+    else:
+        code_display = f"{index}. {queue_code}"
 
     if status == STATUS_IN_PROGRESS:
         status_display = "<span class='status-inprogress'>IN PROGRESS</span>"
     else:
-        status_display = status
+        status_display = html_lib.escape(status)
 
     returned_html = ""
     if status == STATUS_RETURNED:
-        returned_html = f"<b>Returned:</b> {returned_at}<br>"
+        returned_html = f"<b>Returned:</b> {html_lib.escape(returned_at)}<br>"
 
-    st.markdown(
-        (
-            f"<div class='{content_class}'>"
-            f"<div class='queue-card-top'>"
-            f"<div class='queue-code'>{code_display}</div>"
-            f"<div class='queue-meta'>"
-            f"<b>Status:</b> {status_display}<br>"
-            f"<b>Toilet:</b> {toilet_label}<br>"
-            f"<b>Assigned:</b> {assigned_at}<br>"
-            f"{returned_html}"
-            f"</div>"
-            f"</div>"
-            f"</div>"
-        ),
-        unsafe_allow_html=True,
+    arrows_html = ""
+    if status == STATUS_QUEUED:
+        arrows_html = (
+            "<div class='arrow-row'>"
+            + render_link_button("⬆️", {"action": "up", "id": row_id})
+            + render_link_button("⬇️", {"action": "down", "id": row_id})
+            + "</div>"
+        )
+
+    top_html = (
+        f"<div class='{content_class}'>"
+        f"<div class='queue-top'>"
+        f"<div class='queue-left'>"
+        f"<div class='queue-code'>{html_lib.escape(code_display)}</div>"
+        f"</div>"
+        f"<div class='queue-right'>"
+        f"<div class='queue-meta'>"
+        f"<b>Status:</b> {status_display}<br>"
+        f"<b>Toilet:</b> {html_lib.escape(toilet_label)}<br>"
+        f"<b>Assigned:</b> {html_lib.escape(assigned_at)}<br>"
+        f"{returned_html}"
+        f"</div>"
+        f"{arrows_html}"
+        f"</div>"
+        f"</div>"
+        f"</div>"
     )
 
+    st.markdown(top_html, unsafe_allow_html=True)
+
     if status == STATUS_QUEUED:
-        arrow_cols = st.columns(2)
+        assign_html = (
+            "<div class='assign-title'>Assign Toilet</div>"
+            "<div class='assign-row'>"
+            + render_link_button("🚹 Male", {"action": "assign", "id": row_id, "toilet": "Male"})
+            + render_link_button("🚺 Female", {"action": "assign", "id": row_id, "toilet": "Female"})
+            + render_link_button("♿ Handicap", {"action": "assign", "id": row_id, "toilet": "Handicap"})
+            + "</div>"
+        )
 
-        with arrow_cols[0]:
-            st.button(
-                "⬆️",
-                key=f"up_{row_id}",
-                on_click=move_up_callback,
-                args=(row_id,),
-                use_container_width=True,
-            )
-
-        with arrow_cols[1]:
-            st.button(
-                "⬇️",
-                key=f"down_{row_id}",
-                on_click=move_down_callback,
-                args=(row_id,),
-                use_container_width=True,
-            )
-
-        st.markdown("<div class='small-title'>Assign Toilet</div>", unsafe_allow_html=True)
-
-        assign_cols = st.columns(3)
-
-        with assign_cols[0]:
-            st.button(
-                "🚹 Male",
-                key=f"assign_male_{row_id}",
-                on_click=assign_toilet_callback,
-                args=(row_id, queue_code, gender, "Male"),
-                use_container_width=True,
-            )
-
-        with assign_cols[1]:
-            st.button(
-                "🚺 Female",
-                key=f"assign_female_{row_id}",
-                on_click=assign_toilet_callback,
-                args=(row_id, queue_code, gender, "Female"),
-                use_container_width=True,
-            )
-
-        with assign_cols[2]:
-            st.button(
-                "♿ Handicap",
-                key=f"assign_handicap_{row_id}",
-                on_click=assign_toilet_callback,
-                args=(row_id, queue_code, gender, "Handicap"),
-                use_container_width=True,
-            )
+        st.markdown(assign_html, unsafe_allow_html=True)
 
     elif status == STATUS_IN_PROGRESS:
-        action_cols = st.columns(2)
+        action_html = (
+            "<div class='action-row'>"
+            + render_link_button("📣 Nudge", {"action": "nudge", "id": row_id})
+            + render_link_button("✅ Return", {"action": "return", "id": row_id}, primary=True)
+            + "</div>"
+        )
 
-        with action_cols[0]:
-            st.button(
-                "📣 Nudge",
-                key=f"nudge_{row_id}",
-                on_click=call_callback,
-                args=(row_id, queue_code),
-                use_container_width=True,
-            )
-
-        with action_cols[1]:
-            st.button(
-                "✅ Return",
-                key=f"return_{row_id}",
-                type="primary",
-                on_click=return_callback,
-                args=(row_id, queue_code),
-                use_container_width=True,
-            )
+        st.markdown(action_html, unsafe_allow_html=True)
 
     elif status == STATUS_RETURNED:
         st.caption("Returned — will hide after 10 seconds.")
+
+
+# Handle URL actions after helper functions are ready
+handle_query_actions()
 
 
 # =========================================================
@@ -586,62 +790,33 @@ except Exception as e:
 # =========================================================
 # ADD STUDENT SECTION
 # =========================================================
-st.markdown("<div class='app-title'>🚻 Toilet Queue</div>", unsafe_allow_html=True)
-
-st.markdown("<div class='section-title'>Gender</div>", unsafe_allow_html=True)
-
-gender_cols = st.columns(2)
-
-with gender_cols[0]:
-    st.button(
-        "Male ♂️",
-        key="gender_male",
-        type="primary" if st.session_state.selected_gender == "Male" else "secondary",
-        on_click=select_gender,
-        args=("Male",),
-        use_container_width=True,
-    )
-
-with gender_cols[1]:
-    st.button(
-        "Female ♀️",
-        key="gender_female",
-        type="primary" if st.session_state.selected_gender == "Female" else "secondary",
-        on_click=select_gender,
-        args=("Female",),
-        use_container_width=True,
-    )
-
-st.markdown("<div class='small-title'>➕ Add Student</div>", unsafe_allow_html=True)
-
-seat_raw = st.text_input(
-    "Seat Number",
-    key="seat_no_input",
-    placeholder="Enter seat number",
-    max_chars=4,
-)
-
-seat_clean = clean_seat(seat_raw)
-
-if seat_raw != seat_clean:
-    st.session_state.seat_no_input = seat_clean
-    st.rerun()
-
-seat_display = seat_clean or "—"
-
 st.markdown(
-    f"<div class='seat-preview'>{seat_display}</div>",
+    "<div class='app-title'>🚻 Toilet Queue</div>",
     unsafe_allow_html=True,
 )
 
+st.markdown("<div class='section-title'>Gender</div>", unsafe_allow_html=True)
+render_gender_selector()
+
+st.markdown("<div class='small-title'>➕ Add Student</div>", unsafe_allow_html=True)
+
+seat_display = st.session_state.seat_no_text or "—"
+
+st.markdown(
+    f"<div class='seat-display'>{html_lib.escape(seat_display)}</div>",
+    unsafe_allow_html=True,
+)
+
+render_html_numpad()
+
 preview_code = (
-    get_queue_code(seat_clean, st.session_state.selected_gender)
-    if seat_clean
+    get_queue_code(st.session_state.seat_no_text, st.session_state.selected_gender)
+    if st.session_state.seat_no_text
     else "-"
 )
 
 st.markdown(
-    f"<div class='preview-box'>Queue Code: {preview_code}</div>",
+    f"<div class='preview-box'>Queue Code: {html_lib.escape(preview_code)}</div>",
     unsafe_allow_html=True,
 )
 
@@ -656,7 +831,7 @@ st.button(
 if st.session_state.last_action_message:
     note_class = "success-note" if st.session_state.last_action_ok else "error-note"
     st.markdown(
-        f"<div class='{note_class}'>{st.session_state.last_action_message}</div>",
+        f"<div class='{note_class}'>{html_lib.escape(st.session_state.last_action_message)}</div>",
         unsafe_allow_html=True,
     )
 

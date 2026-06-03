@@ -51,7 +51,16 @@ def get_queue_code(seat_no, gender):
     return f"{prefix}{seat_no}"
 
 
+# =========================================================
+# VALIDATION
+# =========================================================
 def validate_assignment(gender, toilet):
+    """
+    Rules:
+    - Male cannot be assigned to Female Toilet
+    - Female cannot be assigned to Male Toilet
+    - Both can be assigned to Handicap Toilet
+    """
     if gender == "Male" and toilet == "Female":
         return False, "Male student cannot be assigned to Female Toilet."
 
@@ -175,7 +184,6 @@ class ToiletQueueCore:
                 "queue_order": next_order,
                 "assigned_at": None,
                 "returned_at": None,
-                "called_at": None,
             })
         )
 
@@ -185,11 +193,14 @@ class ToiletQueueCore:
         if toilet not in LOCATIONS:
             return False, "Invalid toilet selected."
 
+        # Rule 1: Gender validation
         is_valid, message = validate_assignment(gender, toilet)
 
         if not is_valid:
             return False, message
 
+        # Rule 2: Toilet occupancy validation
+        # If the selected toilet already has someone In Progress, block assignment.
         existing_in_progress = self._execute(
             self.supabase.table("toilet_queue")
             .select("*")
@@ -206,6 +217,7 @@ class ToiletQueueCore:
                 f"{toilet_label} Toilet is currently in use by {current_user}. Please wait until they return."
             )
 
+        # Rule 3: Assign toilet and change status to In Progress
         self._execute(
             self.supabase.table("toilet_queue")
             .update({
@@ -218,18 +230,6 @@ class ToiletQueueCore:
         )
 
         return True, f"{queue_code} assigned to {TOILET_LABELS[toilet]}."
-
-    def call_student(self, row_id, queue_code):
-        self._execute(
-            self.supabase.table("toilet_queue")
-            .update({
-                "called_at": now_utc_iso(),
-            })
-            .eq("id", row_id)
-            .select("*")
-        )
-
-        return True, f"{queue_code} nudged."
 
     def mark_returned(self, row_id, queue_code):
         self._execute(
@@ -287,3 +287,15 @@ class ToiletQueueCore:
                 return True, f"{row['queue_code']} moved down."
 
         return False, "Already at the bottom."
+    
+    def call_student(self, row_id, queue_code):
+        self._execute(
+            self.supabase.table("toilet_queue")
+            .update({
+                "called_at": now_utc_iso(),
+            })
+            .eq("id", row_id)
+            .select("*")
+        )
+
+        return True, f"{queue_code} called."
