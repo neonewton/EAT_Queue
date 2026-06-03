@@ -49,9 +49,10 @@ st.markdown(
         padding: 0 !important;
     }
 
-    .stApp {
+    html, body, .stApp {
         width: 100% !important;
-        margin: 0 auto !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
     }
 
     /* Streamlit outer app container */
@@ -77,7 +78,7 @@ st.markdown(
     /* Actual content block */
     [data-testid="stMainBlockContainer"],
     .block-container {
-        width: 100% !important;
+        width: min(100vw, 430px) !important;
         max-width: 430px !important;
         margin-left: auto !important;
         margin-right: auto !important;
@@ -109,16 +110,12 @@ st.markdown(
 
 
     div[data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        gap: 0.45rem !important;
+        gap: 0.35rem !important;
     }
 
     div[data-testid="column"] {
-        flex: 1 1 0 !important;
         min-width: 0 !important;
-        width: auto !important;
+
     }
 
     /* Numpad wrapper */
