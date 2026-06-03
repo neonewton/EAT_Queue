@@ -644,7 +644,7 @@ with st.expander("📊 Queue Log / Export CSV"):
         if "returned_at" in df_display.columns:
             df_display["returned_at"] = df_display["returned_at"].apply(format_datetime)
 
-        st.dataframe(df_display, use_container_width=True, hide_index=True)
+        st.dataframe(df_display, use_container_width=True, hide_index=False)
 
         csv = df.to_csv(index=False).encode("utf-8-sig")
 
