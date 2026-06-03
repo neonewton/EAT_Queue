@@ -109,11 +109,10 @@ st.markdown(
 
 
     div[data-testid="stHorizontalBlock"] {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    gap: 0.35rem !important;
-    width: 100% !important;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 0.45rem !important;
     }
 
     div[data-testid="column"] {
@@ -570,21 +569,25 @@ else:
 
             with top_right:
                 if status == STATUS_QUEUED:
-                    st.button(
-                        "⬆️ Up",
-                        key=f"up_{row_id}",
-                        on_click=move_up_callback,
-                        args=(row_id,),
-                        use_container_width=False,
-                    )
+                    arrow_cols = st.columns(2)
 
-                    st.button(
-                        "⬇️ Down",
-                        key=f"down_{row_id}",
-                        on_click=move_down_callback,
-                        args=(row_id,),
-                        use_container_width=False,
-                    )
+                    with arrow_cols[0]:
+                        st.button(
+                            "⬆️",
+                            key=f"up_{row_id}",
+                            on_click=move_up_callback,
+                            args=(row_id,),
+                            use_container_width=True,
+                        )
+
+                    with arrow_cols[1]:
+                        st.button(
+                            "⬇️",
+                            key=f"down_{row_id}",
+                            on_click=move_down_callback,
+                            args=(row_id,),
+                            use_container_width=True,
+                        )
 
             if status == STATUS_QUEUED:
                 st.markdown(
