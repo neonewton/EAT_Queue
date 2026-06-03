@@ -152,7 +152,7 @@ st.markdown(
         border: 3px solid #d00000;
         border-radius: 18px;
         padding: 0.75rem;
-        animation: nudgePulse 0.35s ease-in-out 0s 8 alternate;
+        animation: nudgePulse 0.35s ease-in-out 0s 10 alternate;
         background-color: #fff5f5;
     }
 
@@ -235,12 +235,51 @@ st.markdown(
                 box-shadow: 0 0 12px rgba(208, 0, 0, 0.35);
             }
         }
+
+        div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 0.45rem !important;
+        }
+
+        div[data-testid="column"] {
+            flex: 1 1 0 !important;
+            min-width: 0 !important;
+            width: auto !important;
+        }
+
+        div[data-testid="stButton"] > button {
+            width: 100% !important;
+            min-width: 0 !important;
+            white-space: nowrap !important;
+        }
         
     }
 
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    #MainMenu {
+        display: none !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    header {
+        display: none !important;
+    }
+
+    [data-testid="stHeader"] {
+        display: none !important;
+    }
+
+    .block-container {
+        max-width: 430px !important;
+        padding-top: 0.1rem !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        padding-bottom: 1rem !important;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -504,7 +543,10 @@ except Exception as e:
 # =========================================================
 # ADD STUDENT SECTION
 # =========================================================
-st.markdown("🚻 Toilet Queue")
+st.markdown(
+    "<div style='font-size:1rem; font-weight:700; margin-bottom:0.2rem;'>🚻 Toilet Queue</div>",
+    unsafe_allow_html=True,
+)
 
 st.markdown("### Gender")
 
@@ -669,20 +711,51 @@ else:
             if status == STATUS_RETURNED:
                 returned_html = f"<b>Returned:</b> {returned_at}<br>"
 
-            st.markdown(
-                f"""
-                <div class="{content_class}">
-                    <div class="queue-code">{code_display}</div>
+            left_col, right_col = st.columns([0.38, 0.62])
+
+            with left_col:
+                st.markdown(
+                    f"""
+                    <div class="{content_class}">
+                        <div class="queue-code">{code_display}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+            with right_col:
+                st.markdown(
+                    f"""
                     <div class="queue-meta">
                         <b>Status:</b> {status_display}<br>
                         <b>Toilet:</b> {toilet_label}<br>
                         <b>Assigned:</b> {assigned_at}<br>
                         {returned_html}
                     </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+                # if status == STATUS_QUEUED:
+                #     move_cols = st.columns(2)
+
+                #     with move_cols[0]:
+                #         st.button(
+                #             "⬆️",
+                #             key=f"up_{row_id}",
+                #             on_click=move_up_callback,
+                #             args=(row_id,),
+                #             use_container_width=True,
+                #         )
+
+                #     with move_cols[1]:
+                #         st.button(
+                #             "⬇️",
+                #             key=f"down_{row_id}",
+                #             on_click=move_down_callback,
+                #             args=(row_id,),
+                #             use_container_width=True,
+                #         )
 
             if status == STATUS_QUEUED:
                 st.markdown(
