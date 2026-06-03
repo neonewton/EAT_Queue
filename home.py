@@ -736,26 +736,26 @@ else:
                     unsafe_allow_html=True,
                 )
 
-                # if status == STATUS_QUEUED:
-                #     move_cols = st.columns(2)
+                if status == STATUS_QUEUED:
+                    move_cols = st.columns(2)
 
-                #     with move_cols[0]:
-                #         st.button(
-                #             "⬆️",
-                #             key=f"up_{row_id}",
-                #             on_click=move_up_callback,
-                #             args=(row_id,),
-                #             use_container_width=True,
-                #         )
+                    with move_cols[0]:
+                        st.button(
+                            "⬆️",
+                            key=f"up_{row_id}",
+                            on_click=move_up_callback,
+                            args=(row_id,),
+                            use_container_width=True,
+                        )
 
-                #     with move_cols[1]:
-                #         st.button(
-                #             "⬇️",
-                #             key=f"down_{row_id}",
-                #             on_click=move_down_callback,
-                #             args=(row_id,),
-                #             use_container_width=True,
-                #         )
+                    with move_cols[1]:
+                        st.button(
+                            "⬇️",
+                            key=f"down_{row_id}",
+                            on_click=move_down_callback,
+                            args=(row_id,),
+                            use_container_width=True,
+                        )
 
             if status == STATUS_QUEUED:
                 st.markdown(
@@ -792,25 +792,25 @@ else:
                         use_container_width=True,
                     )
 
-                move_cols = st.columns(2)
+                # move_cols = st.columns(2)
 
-                with move_cols[0]:
-                    st.button(
-                        "⬆️ Move Up",
-                        key=f"up_{row_id}",
-                        on_click=move_up_callback,
-                        args=(row_id,),
-                        use_container_width=True,
-                    )
+                # with move_cols[0]:
+                #     st.button(
+                #         "⬆️ Move Up",
+                #         key=f"up_{row_id}",
+                #         on_click=move_up_callback,
+                #         args=(row_id,),
+                #         use_container_width=True,
+                #     )
 
-                with move_cols[1]:
-                    st.button(
-                        "⬇️ Move Down",
-                        key=f"down_{row_id}",
-                        on_click=move_down_callback,
-                        args=(row_id,),
-                        use_container_width=True,
-                    )
+                # with move_cols[1]:
+                #     st.button(
+                #         "⬇️ Move Down",
+                #         key=f"down_{row_id}",
+                #         on_click=move_down_callback,
+                #         args=(row_id,),
+                #         use_container_width=True,
+                #     )
 
             elif status == STATUS_IN_PROGRESS:
                 action_cols = st.columns(2)
