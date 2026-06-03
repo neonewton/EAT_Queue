@@ -315,7 +315,9 @@ def select_gender(gender):
 
 def add_student_callback():
     try:
-        seat_no = clean_seat(st.session_state.seat_no_input)
+        seat_value = st.session_state.get("seat_no_number")
+
+        seat_no = "" if seat_value is None else str(int(seat_value))
 
         ok, message = core.add_student(
             seat_no=seat_no,
@@ -325,11 +327,10 @@ def add_student_callback():
         set_message(ok, message)
 
         if ok:
-            st.session_state.seat_no_input = ""
+            st.session_state.seat_no_number = None
 
     except Exception as e:
         set_message(False, f"Failed to add student: {e}")
-
 
 def assign_toilet_callback(row_id, queue_code, gender, toilet):
     try:
@@ -532,7 +533,7 @@ def render_queue_card(index, row):
 
             with arrow_cols[0]:
                 st.button(
-                    "⬆️",
+                    "⬆⬆",
                     key=f"up_{row_id}",
                     on_click=move_up_callback,
                     args=(row_id,),
@@ -541,7 +542,7 @@ def render_queue_card(index, row):
 
             with arrow_cols[1]:
                 st.button(
-                    "⬇️",
+                    "⬇⬇",
                     key=f"down_{row_id}",
                     on_click=move_down_callback,
                     args=(row_id,),
@@ -653,18 +654,17 @@ with gender_cols[1]:
 
 st.markdown("<div class='small-title'>➕ Add Student</div>", unsafe_allow_html=True)
 
-seat_raw = st.text_input(
+seat_value = st.number_input(
     "Seat Number",
-    key="seat_no_input",
+    min_value=0,
+    max_value=9999,
+    step=1,
+    value=None,
     placeholder="Enter seat number",
-    max_chars=4,
+    key="seat_no_number",
 )
 
-seat_clean = clean_seat(seat_raw)
-
-if seat_raw != seat_clean:
-    st.session_state.seat_no_input = seat_clean
-    st.rerun()
+seat_clean = "" if seat_value is None else str(int(seat_value))
 
 seat_display = seat_clean or "—"
 
