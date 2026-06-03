@@ -595,7 +595,7 @@ else:
 
                 with action_cols[0]:
                     st.button(
-                        "📣 Call",
+                        "📣 Nudge",
                         key=f"call_{row_id}",
                         on_click=call_callback,
                         args=(row_id, queue_code),
