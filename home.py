@@ -664,6 +664,11 @@ else:
             else:
                 status_display = status
 
+            returned_html = ""
+
+            if status == STATUS_RETURNED:
+                returned_html = f"<b>Returned:</b> {returned_at}<br>"
+
             st.markdown(
                 f"""
                 <div class="{content_class}">
@@ -672,7 +677,7 @@ else:
                         <b>Status:</b> {status_display}<br>
                         <b>Toilet:</b> {toilet_label}<br>
                         <b>Assigned:</b> {assigned_at}<br>
-                        <b>Returned:</b> {returned_at}
+                        {returned_html}
                     </div>
                 </div>
                 """,
