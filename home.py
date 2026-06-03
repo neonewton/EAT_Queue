@@ -695,7 +695,13 @@ if st.session_state.last_action_message:
 # =========================================================
 # ACTIVE QUEUE SECTION
 # =========================================================
-st.markdown("<div class='section-title'>📋 Active Queue</div>", unsafe_allow_html=True)all_queue = sorted(
+try:
+    all_queue = core.load_active_queue()
+except Exception as e:
+    st.error(f"Failed to load active queue: {e}")
+    all_queue = []
+
+all_queue = sorted(
     all_queue,
     key=lambda x: (
         0 if x.get("status") == STATUS_IN_PROGRESS else
@@ -708,7 +714,10 @@ st.markdown("<div class='section-title'>📋 Active Queue</div>", unsafe_allow_h
 
 render_in_queue_summary(all_queue)
 
-st.markdown("<div class='section-title'>📋 Active Queue</div>", unsafe_allow_html=True)
+st.markdown(
+    "<div class='section-title'>📋 Active Queue</div>",
+    unsafe_allow_html=True,
+)
 
 render_toilet_status_boxes(all_queue)
 
@@ -718,8 +727,6 @@ else:
     for index, row in enumerate(all_queue, start=1):
         with st.container(border=True):
             render_queue_card(index, row)
-
-
 # =========================================================
 # LOG SECTION
 # =========================================================
