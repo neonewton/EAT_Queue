@@ -88,6 +88,15 @@ st.markdown(
         box-sizing: border-box !important;
     }
 
+        div[data-testid="stButton"] > button {
+        min-height: 44px !important;
+        border-radius: 14px !important;
+        font-size: 0.98rem !important;
+        font-weight: 800 !important;
+        padding: 0.4rem 0.75rem !important;
+        white-space: nowrap !important;
+    }
+
     /* Hide Streamlit default UI */
     #MainMenu,
     footer,
@@ -397,14 +406,14 @@ with keypad_mid:
                         "C",
                         key=f"pad_clear_{row_index}",
                         on_click=clear_digits,
-                        use_container_width=True,
+                        use_container_width=False,
                     )
                 elif key == "⌫":
                     st.button(
                         "⌫",
                         key=f"pad_backspace_{row_index}",
                         on_click=backspace_digit,
-                        use_container_width=True,
+                        use_container_width=False,
                     )
                 else:
                     st.button(
@@ -412,7 +421,7 @@ with keypad_mid:
                         key=f"pad_{key}_{row_index}",
                         on_click=append_digit,
                         args=(key,),
-                        use_container_width=True,
+                        use_container_width=False,
                     )
 
 
@@ -539,19 +548,19 @@ else:
             with top_right:
                 if status == STATUS_QUEUED:
                     st.button(
-                        "⬆️",
+                        "⬆️ Up",
                         key=f"up_{row_id}",
                         on_click=move_up_callback,
                         args=(row_id,),
-                        use_container_width=True,
+                        use_container_width=False,
                     )
 
                     st.button(
-                        "⬇️",
+                        "⬇️ Down",
                         key=f"down_{row_id}",
                         on_click=move_down_callback,
                         args=(row_id,),
-                        use_container_width=True,
+                        use_container_width=False,
                     )
 
             if status == STATUS_QUEUED:
