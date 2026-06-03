@@ -573,6 +573,34 @@ def render_queue_card(index, row):
     elif status == STATUS_RETURNED:
         st.caption("Returned — will hide after 10 seconds.")
 
+def render_in_queue_summary(all_queue):
+    male_count = sum(
+        1 for row in all_queue
+        if row.get("status") == STATUS_QUEUED and row.get("gender") == "Male"
+    )
+
+    female_count = sum(
+        1 for row in all_queue
+        if row.get("status") == STATUS_QUEUED and row.get("gender") == "Female"
+    )
+
+    st.markdown(
+        f"""
+        <div style="
+            width:100%;
+            background:#f3f3f3;
+            border-radius:14px;
+            padding:0.75rem;
+            margin:0.7rem 0 0.8rem 0;
+            font-weight:900;
+            text-align:center;
+            box-sizing:border-box;
+        ">
+            In Queue — Male: {male_count} &nbsp;&nbsp; Female: {female_count}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # =========================================================
 # AUTO REFRESH + ARCHIVE
@@ -663,18 +691,11 @@ if st.session_state.last_action_message:
     )
 
 
+
 # =========================================================
 # ACTIVE QUEUE SECTION
 # =========================================================
-st.markdown("<div class='section-title'>📋 Active Queue</div>", unsafe_allow_html=True)
-
-try:
-    all_queue = core.load_active_queue()
-except Exception as e:
-    st.error(f"Failed to load active queue: {e}")
-    all_queue = []
-
-all_queue = sorted(
+st.markdown("<div class='section-title'>📋 Active Queue</div>", unsafe_allow_html=True)all_queue = sorted(
     all_queue,
     key=lambda x: (
         0 if x.get("status") == STATUS_IN_PROGRESS else
@@ -684,6 +705,10 @@ all_queue = sorted(
         x.get("created_at", ""),
     )
 )
+
+render_in_queue_summary(all_queue)
+
+st.markdown("<div class='section-title'>📋 Active Queue</div>", unsafe_allow_html=True)
 
 render_toilet_status_boxes(all_queue)
 
