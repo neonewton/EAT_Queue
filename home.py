@@ -157,7 +157,7 @@ st.markdown(
     }
 
     .normal-card-content {
-        border: 1px solid transparent;
+        border: 2px solid transparent;
         border-radius: 18px;
         padding: 0.75rem;
     }
@@ -196,7 +196,7 @@ st.markdown(
 # =========================================================
 # PASSWORD + SUPABASE
 # =========================================================
-st.title("🚻 Toilet Queue")
+st.markdown("🚻 Toilet Queue")
 
 try:
     APP_PASSWORD = st.secrets["APP_PASSWORD"]
@@ -281,7 +281,16 @@ def assign_toilet_callback(row_id, queue_code, gender, toilet):
             toilet=toilet,
         )
 
-        set_message(ok, message)
+        # If assignment is successful, immediately trigger Call/Nudge
+        if ok:
+            call_ok, call_message = core.call_student(row_id, queue_code)
+
+            if call_ok:
+                set_message(True, f"{message} {call_message}")
+            else:
+                set_message(False, call_message)
+        else:
+            set_message(False, message)
 
     except Exception as e:
         set_message(False, f"Failed to assign toilet: {e}")
@@ -561,25 +570,25 @@ else:
                         use_container_width=True,
                     )
 
-                move_cols = st.columns(2)
+                # move_cols = st.columns(2)
 
-                with move_cols[0]:
-                    st.button(
-                        "⬆️ Move Up",
-                        key=f"up_{row_id}",
-                        on_click=move_up_callback,
-                        args=(row_id,),
-                        use_container_width=True,
-                    )
+                # with move_cols[0]:
+                #     st.button(
+                #         "⬆️ Move Up",
+                #         key=f"up_{row_id}",
+                #         on_click=move_up_callback,
+                #         args=(row_id,),
+                #         use_container_width=True,
+                #     )
 
-                with move_cols[1]:
-                    st.button(
-                        "⬇️ Move Down",
-                        key=f"down_{row_id}",
-                        on_click=move_down_callback,
-                        args=(row_id,),
-                        use_container_width=True,
-                    )
+                # with move_cols[1]:
+                #     st.button(
+                #         "⬇️ Move Down",
+                #         key=f"down_{row_id}",
+                #         on_click=move_down_callback,
+                #         args=(row_id,),
+                #         use_container_width=True,
+                #     )
 
             elif status == STATUS_IN_PROGRESS:
                 action_cols = st.columns(2)
