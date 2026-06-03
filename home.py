@@ -596,8 +596,8 @@ def render_in_queue_summary(all_queue):
         if row.get("status") == STATUS_QUEUED and row.get("gender") == "Female"
     )
 
-    male_color = "#d00000" if male_count > 5 else "#222222"
-    female_color = "#d00000" if female_count > 5 else "#222222"
+    male_color = "#d00000" if male_count >= 5 else "#222222"
+    female_color = "#d00000" if female_count >= 5 else "#222222"
 
     st.markdown(
         f"""
