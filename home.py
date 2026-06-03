@@ -629,9 +629,7 @@ else:
                 <div class="{content_class}">
                     <div class="queue-code">{code_display}</div>
                     <div class="queue-meta">
-                        <b>Seat:</b> {seat}<br>
                         <b>Status:</b> {status_display}<br>
-                        <b>Gender:</b> {gender}<br>
                         <b>Toilet:</b> {toilet_label}<br>
                         <b>Assigned:</b> {assigned_at}<br>
                         <b>Returned:</b> {returned_at}
