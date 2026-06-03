@@ -113,13 +113,16 @@ st.markdown(
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
-        gap: 0.45rem !important;
+        gap: 0.35rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
 
     div[data-testid="column"] {
         flex: 1 1 0 !important;
         min-width: 0 !important;
-        max-width: 50% !important;
+        width: 0 !important;
+        max-width: none !important;
     }
 
     /* Numpad wrapper */
@@ -167,10 +170,11 @@ st.markdown(
         min-width: 0 !important;
         min-height: 44px !important;
         border-radius: 14px !important;
-        font-size: 0.98rem !important;
+        font-size: 0.9rem !important;
         font-weight: 800 !important;
         padding: 0.35rem 0.2rem !important;
         white-space: nowrap !important;
+    }
 
     .queue-meta-safe {
         max-width: 100% !important;
@@ -182,6 +186,7 @@ st.markdown(
     .queue-code {
         overflow-wrap: anywhere !important;
         word-break: break-word !important;
+    }
     }
 
         </style>
