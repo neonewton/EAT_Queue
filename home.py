@@ -158,8 +158,8 @@ st.markdown(
 
     .normal-card-content {
         border: 2px solid transparent;
-        border-radius: 18px;
-        padding: 0.25rem;
+        border-radius: 10px;
+        padding: 0.15rem;
     }
 
     @keyframes nudgePulse {
@@ -412,27 +412,45 @@ def render_toilet_status_boxes(all_queue):
     for row in all_queue:
         if row.get("status") == STATUS_IN_PROGRESS:
             location = row.get("location")
+
             if location in toilet_status:
-                toilet_status[location] = row.get("queue_code", "")
+                toilet_status[location] = {
+                    "queue_code": row.get("queue_code", ""),
+                    "called_at": row.get("called_at"),
+                }
 
     html_parts = [
         "<div style='display:flex; flex-direction:row; gap:8px; width:100%; margin:10px 0 16px 0;'>"
     ]
 
     for toilet in LOCATIONS:
-        queue_code = toilet_status.get(toilet)
+        current = toilet_status.get(toilet)
         toilet_label = TOILET_LABELS.get(toilet, toilet)
 
-        if queue_code:
+        if current:
+            queue_code = current.get("queue_code", "")
+            called_at = current.get("called_at")
+            is_called_recently = is_recent_call(called_at, seconds=6)
+
             border_color = "#d00000"
             bg_color = "#fff3f3"
+
+            animation_style = (
+                "animation:nudgePulse 0.35s ease-in-out 0s 8 alternate;"
+                if is_called_recently
+                else ""
+            )
+
             status_html = (
                 "<div style='font-size:0.75rem; font-weight:800; color:#d00000;'>IN USE</div>"
                 f"<div style='font-size:0.95rem; font-weight:900; color:#d00000;'>{queue_code}</div>"
             )
+
         else:
             border_color = "#2e7d32"
             bg_color = "#f1fff1"
+            animation_style = ""
+
             status_html = (
                 "<div style='font-size:0.75rem; font-weight:800; color:#2e7d32;'>Available</div>"
             )
@@ -440,7 +458,7 @@ def render_toilet_status_boxes(all_queue):
         html_parts.append(
             f"<div style='flex:1; min-width:0; border:2px solid {border_color}; "
             f"border-radius:14px; background:{bg_color}; padding:10px 4px; "
-            f"text-align:center; min-height:76px;'>"
+            f"text-align:center; min-height:76px; {animation_style}'>"
             f"<div style='font-size:0.8rem; font-weight:900; margin-bottom:6px;'>{toilet_label}</div>"
             f"{status_html}"
             f"</div>"
@@ -449,6 +467,28 @@ def render_toilet_status_boxes(all_queue):
     html_parts.append("</div>")
 
     st.markdown("".join(html_parts), unsafe_allow_html=True)
+
+def assign_toilet_callback(row_id, queue_code, gender, toilet):
+    try:
+        ok, message = core.assign_toilet(
+            row_id=row_id,
+            queue_code=queue_code,
+            gender=gender,
+            toilet=toilet,
+        )
+
+        if ok:
+            call_ok, call_message = core.call_student(row_id, queue_code)
+
+            if call_ok:
+                set_message(True, f"{message} {call_message}")
+            else:
+                set_message(False, call_message)
+        else:
+            set_message(False, message)
+
+    except Exception as e:
+        set_message(False, f"Failed to assign toilet: {e}")
 
 # =========================================================
 # AUTO REFRESH + ARCHIVE
