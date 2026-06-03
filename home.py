@@ -533,7 +533,7 @@ def render_queue_card(index, row):
 
             with arrow_cols[0]:
                 st.button(
-                    "⬆⬆",
+                    "Move Up",
                     key=f"up_{row_id}",
                     on_click=move_up_callback,
                     args=(row_id,),
@@ -542,7 +542,7 @@ def render_queue_card(index, row):
 
             with arrow_cols[1]:
                 st.button(
-                    "⬇⬇",
+                    "Move Down",
                     key=f"down_{row_id}",
                     on_click=move_down_callback,
                     args=(row_id,),
@@ -657,7 +657,7 @@ st.markdown("<div class='small-title'>➕ Add Student</div>", unsafe_allow_html=
 seat_value = st.number_input(
     "Seat Number",
     min_value=0,
-    max_value=9999,
+    max_value=999,
     step=1,
     value=None,
     placeholder="Enter seat number",
