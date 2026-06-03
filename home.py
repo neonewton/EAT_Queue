@@ -751,7 +751,7 @@ else:
         with st.container(border=True):
             render_queue_card(index, row)
 
-st.space(size="large")
+
 
 # =========================================================
 # LOG SECTION
@@ -801,3 +801,6 @@ with st.expander("📊 Queue Log / Export CSV"):
             mime="text/csv",
             use_container_width=True,
         )
+
+st.space(size="large")
+st.space(size="large")
