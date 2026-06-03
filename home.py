@@ -512,27 +512,6 @@ def render_toilet_status_boxes(all_queue):
 
     st.markdown("".join(html_parts), unsafe_allow_html=True)
 
-def assign_toilet_callback(row_id, queue_code, gender, toilet):
-    try:
-        ok, message = core.assign_toilet(
-            row_id=row_id,
-            queue_code=queue_code,
-            gender=gender,
-            toilet=toilet,
-        )
-
-        if ok:
-            call_ok, call_message = core.call_student(row_id, queue_code)
-
-            if call_ok:
-                set_message(True, f"{message} {call_message}")
-            else:
-                set_message(False, call_message)
-        else:
-            set_message(False, message)
-
-    except Exception as e:
-        set_message(False, f"Failed to assign toilet: {e}")
 
 # =========================================================
 # AUTO REFRESH + ARCHIVE
@@ -763,27 +742,6 @@ else:
                         args=(row_id,),
                         use_container_width=True,
                     )
-
-                if status == STATUS_QUEUED:
-                    move_cols = st.columns(2)
-
-                    with move_cols[0]:
-                        st.button(
-                            "⬆️",
-                            key=f"up_{row_id}",
-                            on_click=move_up_callback,
-                            args=(row_id,),
-                            use_container_width=False,
-                        )
-
-                    with move_cols[1]:
-                        st.button(
-                            "⬇️",
-                            key=f"down_{row_id}",
-                            on_click=move_down_callback,
-                            args=(row_id,),
-                            use_container_width=False,
-                        )
 
             if status == STATUS_QUEUED:
                 st.markdown(
