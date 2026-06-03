@@ -110,7 +110,7 @@ st.markdown(
 
 
     div[data-testid="stHorizontalBlock"] {
-        gap: 0.35rem !important;
+        gap: 0.1rem !important;
     }
 
     div[data-testid="column"] {
