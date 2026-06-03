@@ -255,19 +255,26 @@ st.markdown(
 
 
 # =========================================================
-# SUPABASE
+# PASSWORD + SUPABASE
 # =========================================================
+
+
 try:
+    APP_PASSWORD = st.secrets["APP_PASSWORD"]
     SUPABASE_URL = st.secrets["SUPABASE_URL"]
     SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 except KeyError as e:
     st.error(f"Missing Streamlit secret: {e}")
     st.stop()
 
+# Uncomment if you want password screen again.
+# password = st.text_input("Event Password", type="password", label_visibility="collapsed")
+# if password != APP_PASSWORD:
+#     st.warning("Enter password to continue.")
+#     st.stop()
+
 core = ToiletQueueCore(SUPABASE_URL, SUPABASE_KEY)
 
-
-# =========================================================
 # SESSION STATE
 # =========================================================
 if "selected_gender" not in st.session_state:
@@ -533,7 +540,7 @@ def render_queue_card(index, row):
 
             with arrow_cols[0]:
                 st.button(
-                    "Move Up",
+                    "⬆️",
                     key=f"up_{row_id}",
                     on_click=move_up_callback,
                     args=(row_id,),
@@ -542,7 +549,7 @@ def render_queue_card(index, row):
 
             with arrow_cols[1]:
                 st.button(
-                    "Move Down",
+                    "⬇️",
                     key=f"down_{row_id}",
                     on_click=move_down_callback,
                     args=(row_id,),
@@ -601,7 +608,7 @@ def render_in_queue_summary(all_queue):
             box-sizing:border-box;
             line-height:1.5;
         ">
-            <div style="font-size:1rem;">In Queue</div>
+            <div class='section-title'>⏱️ In Queue</div>
             <div style="font-size:1rem;">
                 <span style="color:{male_color};">Male: {male_count}</span>
                 <span style="color:#777;"> | </span>
@@ -668,11 +675,6 @@ seat_clean = "" if seat_value is None else str(int(seat_value))
 
 seat_display = seat_clean or "—"
 
-st.markdown(
-    f"<div class='seat-preview'>{seat_display}</div>",
-    unsafe_allow_html=True,
-)
-
 preview_code = (
     get_queue_code(seat_clean, st.session_state.selected_gender)
     if seat_clean
@@ -680,9 +682,14 @@ preview_code = (
 )
 
 st.markdown(
-    f"<div class='preview-box'>Queue Code: {preview_code}</div>",
+    f"<div class='seat-preview'>{preview_code}</div>",
     unsafe_allow_html=True,
 )
+
+# st.markdown(
+#     f"<div class='preview-box'>Queue Code: {preview_code}</div>",
+#     unsafe_allow_html=True,
+# )
 
 st.button(
     "➕ Add to Queue",
