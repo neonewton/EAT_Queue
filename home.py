@@ -45,23 +45,29 @@ st.markdown(
     /* ===============================
        MAIN APP CONTAINER
     =============================== */
-    [data-testid="stAppViewContainer"] {
-        display: flex !important;
-        justify-content: center !important;
-    }
 
-    [data-testid="stAppViewContainer"] > .main {
+    /* Reset Streamlit app container */
+    [data-testid="stAppViewContainer"] {
+        display: block !important;
         width: 100% !important;
     }
 
+    [data-testid="stAppViewContainer"] > .main {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Center the actual app content */
     .block-container {
         max-width: 430px !important;
+        width: 100% !important;
         margin-left: auto !important;
         margin-right: auto !important;
         padding-top: 0.1rem !important;
         padding-left: 0.75rem !important;
         padding-right: 0.75rem !important;
         padding-bottom: 1rem !important;
+        box-sizing: border-box !important;
     }
 
     /* ===============================
