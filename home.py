@@ -158,8 +158,14 @@ st.markdown(
     }
 
     .toilet-box-busy {
-        border-color: #d00000;
-        background-color: #fff3f3;
+        border-color: #d9d9d9;
+        background-color: #ffffff;
+    }
+
+    .toilet-box-nudge {
+        border-color: #d00000 !important;
+        background-color: #fff3f3 !important;
+        animation: nudgePulse 0.35s ease-in-out 0s 8 alternate;
     }
 
     .toilet-title {
@@ -327,6 +333,12 @@ if "last_action_message" not in st.session_state:
 if "last_action_ok" not in st.session_state:
     st.session_state.last_action_ok = True
 
+if "disabled_toilets" not in st.session_state:
+    st.session_state.disabled_toilets = {
+        "Male": False,
+        "Female": False,
+        "Handicap": False,
+    }
 
 # =========================================================
 # HELPERS / CALLBACKS
@@ -379,6 +391,16 @@ def add_student_callback():
 
 def assign_toilet_callback(row_id, queue_code, gender, toilet):
     try:
+        if st.session_state.disabled_toilets.get(toilet, False):
+            toilet_label = {
+                "Male": "🚹 Male",
+                "Female": "🚺 Female",
+                "Handicap": "♿ Handicap",
+            }.get(toilet, toilet)
+
+            set_message(False, f"{toilet_label} is currently disabled.")
+            return
+
         ok, message = core.assign_toilet(
             row_id=row_id,
             queue_code=queue_code,
@@ -475,14 +497,10 @@ def render_toilet_status_boxes(all_queue):
         if current:
             queue_code = current.get("queue_code", "")
             called_at = current.get("called_at")
-            animation_style = (
-                " style='animation:nudgePulse 0.35s ease-in-out 0s 8 alternate;'"
-                if is_recent_call(called_at, seconds=6)
-                else ""
-            )
+            nudge_class = " toilet-box-nudge" if is_recent_call(called_at, seconds=6) else ""
 
             html_parts.append(
-                f"<div class='toilet-box toilet-box-busy'{animation_style}>"
+                f"<div class='toilet-box toilet-box-busy{nudge_class}'>"
                 f"<div class='toilet-title'>{toilet_label}</div>"
                 f"<div class='toilet-status' style='color:#d00000;'>IN USE</div>"
                 f"<div class='toilet-code'>{queue_code}</div>"
@@ -561,6 +579,7 @@ def render_queue_card(index, row):
                 on_click=assign_toilet_callback,
                 args=(row_id, queue_code, gender, "Male"),
                 use_container_width=True,
+                disabled=st.session_state.disabled_toilets.get("Male", False),
             )
 
         with assign_cols[1]:
@@ -570,6 +589,7 @@ def render_queue_card(index, row):
                 on_click=assign_toilet_callback,
                 args=(row_id, queue_code, gender, "Female"),
                 use_container_width=True,
+                disabled=st.session_state.disabled_toilets.get("Female", False),
             )
 
         with assign_cols[2]:
@@ -579,6 +599,7 @@ def render_queue_card(index, row):
                 on_click=assign_toilet_callback,
                 args=(row_id, queue_code, gender, "Handicap"),
                 use_container_width=True,
+                disabled=st.session_state.disabled_toilets.get("Handicap", False),
             )
 
             arrow_cols = st.columns(2)
@@ -767,6 +788,25 @@ def render_event_admin_panel():
             except Exception as e:
                 set_message(False, f"Failed to create event: {e}")
 
+def render_toilet_disable_panel():
+    with st.expander("🚻 Enable / Disable Toilets"):
+        st.caption("Disabled toilets cannot be assigned in this browser session.")
+
+        for toilet in LOCATIONS:
+            label = {
+                "Male": "🚹 Male",
+                "Female": "🚺 Female",
+                "Handicap": "♿ Handicap",
+            }.get(toilet, toilet)
+
+            is_disabled = st.toggle(
+                f"Disable {label}",
+                value=st.session_state.disabled_toilets.get(toilet, False),
+                key=f"toggle_disable_{toilet}",
+            )
+
+            st.session_state.disabled_toilets[toilet] = is_disabled
+
 
 # =========================================================
 # AUTO REFRESH + ARCHIVE
@@ -903,6 +943,8 @@ else:
 
 
 render_faq()
+st.space(size="small")
+render_toilet_disable_panel()
 st.space(size="small")
 render_event_admin_panel()
 st.space(size="small")
