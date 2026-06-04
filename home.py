@@ -158,13 +158,15 @@ st.markdown(
     }
 
     .toilet-box-busy {
-        border-color: #d9d9d9;
-        background-color: #ffffff;
+        border-color: #d9d9d9 !important;
+        background-color: #eeeeee !important;
+        opacity: 0.75;
     }
 
     .toilet-box-nudge {
         border-color: #d00000 !important;
         background-color: #fff3f3 !important;
+        opacity: 1 !important;
         animation: nudgePulse 0.35s ease-in-out 0s 8 alternate;
     }
 
@@ -497,20 +499,14 @@ def render_toilet_status_boxes(all_queue):
         if current:
             queue_code = current.get("queue_code", "")
             called_at = current.get("called_at")
-            nudge_class = " toilet-box-nudge" if is_recent_call(called_at, seconds=6) else ""
+            is_nudging = is_recent_call(called_at, seconds=6)
+            nudge_class = " toilet-box-nudge" if is_nudging else ""
 
             html_parts.append(
                 f"<div class='toilet-box toilet-box-busy{nudge_class}'>"
                 f"<div class='toilet-title'>{toilet_label}</div>"
-                f"<div class='toilet-status' style='color:#d00000;'>IN USE</div>"
-                f"<div class='toilet-code'>{queue_code}</div>"
-                f"</div>"
-            )
-        else:
-            html_parts.append(
-                f"<div class='toilet-box'>"
-                f"<div class='toilet-title'>{toilet_label}</div>"
-                f"<div class='toilet-status' style='color:#2e7d32;'>Available</div>"
+                f"<div class='toilet-status' style='color:#777777;'>IN USE</div>"
+                f"<div class='toilet-code' style='color:#555555;'>{queue_code}</div>"
                 f"</div>"
             )
 
