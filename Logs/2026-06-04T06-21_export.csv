@@ -1,0 +1,14 @@
+﻿queue_code,seat_no,gender,location,status,queue_order,assigned_at,returned_at,called_at,created_at
+M89,89,Male,Unassigned,Queued,13,nan,-,,2026-06-04T06:20:35.784148+00:00
+F88,88,Female,Unassigned,Queued,12,nan,-,,2026-06-04T05:38:30.780454+00:00
+M88,88,Male,Unassigned,Queued,11,nan,-,,2026-06-04T05:38:27.208852+00:00
+M444,444,Male,Unassigned,Queued,10,nan,-,,2026-06-04T05:23:12.200845+00:00
+M555,555,Male,Unassigned,Queued,9,nan,-,,2026-06-04T05:23:09.156591+00:00
+M666,666,Male,Unassigned,Queued,8,nan,-,,2026-06-04T05:23:01.721263+00:00
+M777,777,Male,Unassigned,Queued,7,nan,-,,2026-06-04T05:22:59.593037+00:00
+M888,888,Male,Unassigned,Queued,5,nan,-,,2026-06-04T05:22:54.274865+00:00
+F994,994,Female,Unassigned,Queued,4,nan,-,,2026-06-04T05:22:41.075785+00:00
+M995,995,Male,Unassigned,Queued,6,nan,-,,2026-06-04T05:22:28.738211+00:00
+M997,997,Male,Handicap,In Progress,3,01:22:22 PM,-,2026-06-04T05:22:22.467325+00:00,2026-06-04T05:22:20.379752+00:00
+F998,998,Female,Female,In Progress,2,01:22:10 PM,-,2026-06-04T05:38:52.128814+00:00,2026-06-04T05:21:59.830362+00:00
+M999,999,Male,Male,In Progress,1,01:22:09 PM,-,2026-06-04T06:20:27.914127+00:00,2026-06-04T05:21:54.223815+00:00

@@ -943,12 +943,20 @@ with st.expander("📊 Queue Log / Export CSV"):
 
         csv = df.to_csv(index=False).encode("utf-8-sig")
 
-        safe_event_name = st.session_state.active_event.replace(" ", "_").replace("/", "_")
+        safe_event_name = (
+            st.session_state.active_event
+            .replace(" ", "_")
+            .replace("/", "_")
+            .replace("\\", "_")
+            .replace(":", "_")
+        )
+
+        timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M")
 
         st.download_button(
             label="Download CSV",
             data=csv,
-            file_name=f"toilet_queue_log_{safe_event_name}.csv",
+            file_name=f"{safe_event_name}_{timestamp}_export.csv",
             mime="text/csv",
             use_container_width=True,
         )
