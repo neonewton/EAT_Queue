@@ -757,7 +757,7 @@ def render_event_admin_panel():
         pending = st.session_state.pending_event_switch
 
         if pending:
-            st.warning(f"Switch to <bold>{pending}</bold>? This will affect all users.")
+            st.warning(f"Switch to **{pending}**? This will affect all users.")
         else:
             st.info("Select an event above, then press OK to switch.")
 
