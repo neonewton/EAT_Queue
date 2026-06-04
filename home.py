@@ -260,8 +260,8 @@ st.markdown(
 
     /* Number input outer container */
     div[data-testid="stNumberInput"] {
-        margin-top: 0.3rem !important;
-        margin-bottom: 0.5rem !important;
+        margin-top: 0.2rem !important;
+        margin-bottom: 0.2rem !important;
     }
 
     div[data-testid="stNumberInput"] button {
@@ -273,8 +273,8 @@ st.markdown(
     }
 
     div[data-testid="stVerticalBlockBorderWrapper"] > div {
-        padding-top: 0.3rem !important;
-        padding-bottom: 0.3rem !important;
+        padding-top: 0.1rem !important;
+        padding-bottom: 0.1rem !important;
     }
 
     div[data-testid="stVerticalBlock"] {
