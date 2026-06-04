@@ -269,7 +269,7 @@ st.markdown(
     }
 
     div[data-testid="stVerticalBlockBorderWrapper"] {
-    margin-bottom: 0.3rem !important;
+    margin-bottom: 0.5rem !important;
     }
 
     div[data-testid="stVerticalBlockBorderWrapper"] > div {
