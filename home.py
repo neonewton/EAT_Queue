@@ -160,13 +160,20 @@ st.markdown(
     .toilet-box-busy {
         border-color: #d9d9d9 !important;
         background-color: #eeeeee !important;
-        opacity: 0.75;
+        opacity: 1 !important;
+    }
+
+    .toilet-box-busy .toilet-status {
+        color: #d00000 !important;
+    }
+
+    .toilet-box-busy .toilet-code {
+        color: #d00000 !important;
     }
 
     .toilet-box-nudge {
         border-color: #d00000 !important;
         background-color: #fff3f3 !important;
-        opacity: 1 !important;
         animation: nudgePulse 0.35s ease-in-out 0s 8 alternate;
     }
 
@@ -505,8 +512,8 @@ def render_toilet_status_boxes(all_queue):
             html_parts.append(
                 f"<div class='toilet-box toilet-box-busy{nudge_class}'>"
                 f"<div class='toilet-title'>{toilet_label}</div>"
-                f"<div class='toilet-status' style='color:#777777;'>IN USE</div>"
-                f"<div class='toilet-code' style='color:#555555;'>{queue_code}</div>"
+                f"<div class='toilet-status'>IN USE</div>"
+                f"<div class='toilet-code'>{queue_code}</div>"
                 f"</div>"
             )
 
