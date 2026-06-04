@@ -674,14 +674,14 @@ def render_event_manager():
         <div style="
             width:100%;
             background:#ffffff;
-            border-radius:14px;
+            border-radius:12px;
             padding:0.25rem;
             margin:0.25rem 0 0.8rem 0;
             box-sizing:border-box;
             text-align:center;
-            font-weight:800;
+            font-weight:400;
         ">
-            Active Event: <span style="font-size:1.05rem; color:#70005d;">{active_event}</span>
+            Active Event: <span style="font-size:0.8rem; color:#70005d;">{active_event}</span>
         </div>
         """,
         unsafe_allow_html=True,
