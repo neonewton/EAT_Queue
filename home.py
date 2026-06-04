@@ -669,57 +669,70 @@ def render_event_manager():
     if "pending_event_switch" not in st.session_state:
         st.session_state.pending_event_switch = None
 
+    # Show active event at the top of the page
     st.markdown(
         f"""
         <div style="
             width:100%;
             background:#ffffff;
-            border-radius:12px;
-            padding:0.25rem;
-            margin:0.25rem 0 0.8rem 0;
+            border-radius:14px;
+            padding:0.45rem;
+            margin:0.2rem 0 0.6rem 0;
             box-sizing:border-box;
             text-align:center;
-            font-weight:400;
+            font-weight:700;
         ">
-            Active Event: <span style="font-size:1rem; color:#70005d;">{active_event}</span>
+            Active Event:
+            <span style="font-weight:900; color:#70005d;">{active_event}</span>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    selected_event = st.selectbox(
-        "Select Event",
-        event_names,
-        index=event_names.index(active_event) if active_event in event_names else 0,
-        key="event_selector",
-    )
+    with st.expander("➕ Create / Switch Event"):
+        selected_event = st.selectbox(
+            "Select Event",
+            event_names,
+            index=event_names.index(active_event) if active_event in event_names else 0,
+            key="event_selector",
+        )
 
-    if selected_event != active_event:
-        st.session_state.pending_event_switch = selected_event
+        if selected_event != active_event:
+            st.session_state.pending_event_switch = selected_event
 
-    if st.session_state.pending_event_switch:
-        pending = st.session_state.pending_event_switch
+        if st.session_state.pending_event_switch:
+            pending = st.session_state.pending_event_switch
 
-        st.warning(f"Switch to {pending}? This will affect all users.")
+            st.warning(f"Switch to {pending}? This will affect all users.")
 
-        confirm_cols = st.columns(2)
+            confirm_cols = st.columns(2)
 
-        with confirm_cols[0]:
-            if st.button("OK", key="confirm_event_switch", type="primary", use_container_width=True):
-                try:
-                    ok, message = core.set_active_event(pending)
-                    set_message(ok, message)
+            with confirm_cols[0]:
+                if st.button(
+                    "OK",
+                    key="confirm_event_switch",
+                    type="primary",
+                    use_container_width=True,
+                ):
+                    try:
+                        ok, message = core.set_active_event(pending)
+                        set_message(ok, message)
+                        st.session_state.pending_event_switch = None
+                        st.rerun()
+                    except Exception as e:
+                        set_message(False, f"Failed to switch event: {e}")
+
+            with confirm_cols[1]:
+                if st.button(
+                    "Cancel",
+                    key="cancel_event_switch",
+                    use_container_width=True,
+                ):
                     st.session_state.pending_event_switch = None
                     st.rerun()
-                except Exception as e:
-                    set_message(False, f"Failed to switch event: {e}")
 
-        with confirm_cols[1]:
-            if st.button("Cancel", key="cancel_event_switch", use_container_width=True):
-                st.session_state.pending_event_switch = None
-                st.rerun()
+        st.markdown("---")
 
-    with st.expander("➕ Create New Event"):
         new_event_name = st.text_input(
             "New Event Name",
             placeholder="e.g. Y3_OSCE_AM",
@@ -756,6 +769,9 @@ except Exception as e:
 # ADD STUDENT SECTION
 # =========================================================
 st.markdown("<div class='app-title'>🚻 Toilet Queue</div>", unsafe_allow_html=True)
+
+active_event = render_event_manager()
+st.session_state.active_event = active_event
 
 st.markdown("<div class='section-title'>Gender</div>", unsafe_allow_html=True)
 
@@ -871,8 +887,8 @@ else:
         with st.container(border=True):
             render_queue_card(index, row)
 
-active_event = render_event_manager()
-st.session_state.active_event = active_event
+# active_event = render_event_manager()
+# st.session_state.active_event = active_event
 
 # =========================================================
 # LOG SECTION
