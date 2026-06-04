@@ -675,8 +675,8 @@ def render_event_manager():
             width:100%;
             background:#f3f3f3;
             border-radius:14px;
-            padding:0.75rem;
-            margin:0.5rem 0 0.8rem 0;
+            padding:0.25rem;
+            margin:0.25rem 0 0.8rem 0;
             box-sizing:border-box;
             text-align:center;
             font-weight:800;
@@ -729,11 +729,12 @@ def render_event_manager():
 
         if st.button("Create Event", key="create_event", use_container_width=True):
             try:
-                ok, message = core.create_event(new_event_name)
+                cleaned_event_name = new_event_name.strip()
+
+                ok, message = core.create_event(cleaned_event_name)
                 set_message(ok, message)
 
                 if ok:
-                    st.session_state.new_event_name = ""
                     st.rerun()
 
             except Exception as e:
