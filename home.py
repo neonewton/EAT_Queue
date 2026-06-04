@@ -346,28 +346,10 @@ def select_gender(gender):
     st.session_state.selected_gender = gender
 
 
-# def add_student_callback():
-#     try:
-#         seat_value = st.session_state.get("seat_no_number")
-
-#         seat_no = "" if seat_value is None else str(int(seat_value))
-
-#         ok, message = core.add_student(
-#             seat_no=seat_no,
-#             gender=st.session_state.selected_gender,
-#         )
-
-#         set_message(ok, message)
-
-#         if ok:
-#             st.session_state.seat_no_number = None
-
-#     except Exception as e:
-#         set_message(False, f"Failed to add student: {e}")
-
 def add_student_callback():
     try:
-        seat_no = clean_seat(st.session_state.seat_no_input)
+        seat_value = st.session_state.get("seat_no_number")
+        seat_no = "" if seat_value is None else str(int(seat_value))
 
         ok, message = core.add_student(
             seat_no=seat_no,
@@ -378,7 +360,7 @@ def add_student_callback():
         set_message(ok, message)
 
         if ok:
-            st.session_state.seat_no_input = ""
+            st.session_state.seat_no_number = None
 
     except Exception as e:
         set_message(False, f"Failed to add student: {e}")

@@ -106,10 +106,11 @@ class ToiletQueueCore:
             except Exception:
                 continue
 
-    def load_active_queue(self):
+    def load_active_queue(self, queue_event="default"):
         rows = self._execute(
             self.supabase.table("toilet_queue")
             .select("*")
+            .eq("queue_event", queue_event)
             .in_("status", ACTIVE_STATUSES)
             .order("queue_order")
             .order("created_at")
@@ -117,19 +118,21 @@ class ToiletQueueCore:
 
         return rows or []
 
-    def load_log(self):
+    def load_log(self, queue_event="default"):
         rows = self._execute(
             self.supabase.table("toilet_queue")
             .select("*")
+            .eq("queue_event", queue_event)
             .order("created_at", desc=True)
         )
 
         return rows or []
 
-    def get_next_order(self):
+    def get_next_order(self, queue_event="default"):
         rows = self._execute(
             self.supabase.table("toilet_queue")
             .select("queue_order")
+            .eq("queue_event", queue_event)
             .in_("status", [STATUS_QUEUED, STATUS_IN_PROGRESS])
         )
 
@@ -138,8 +141,9 @@ class ToiletQueueCore:
 
         return max(row.get("queue_order", 0) or 0 for row in rows) + 1
 
-    def add_student(self, seat_no, gender):
+    def add_student(self, seat_no, gender, queue_event="default"):
         seat_no = str(seat_no).strip()
+        queue_event = str(queue_event).strip() or "default"
 
         if not seat_no:
             return False, "Please enter a seat number."
@@ -155,18 +159,20 @@ class ToiletQueueCore:
         duplicate = self._execute(
             self.supabase.table("toilet_queue")
             .select("*")
+            .eq("queue_event", queue_event)
             .eq("queue_code", queue_code)
             .in_("status", ACTIVE_STATUSES)
         )
 
         if duplicate:
-            return False, f"{queue_code} is already active."
+            return False, f"{queue_code} is already active in {queue_event}."
 
-        next_order = self.get_next_order()
+        next_order = self.get_next_order(queue_event)
 
         self._execute(
             self.supabase.table("toilet_queue")
             .insert({
+                "queue_event": queue_event,
                 "queue_code": queue_code,
                 "seat_no": int(seat_no),
                 "gender": gender,
@@ -179,7 +185,7 @@ class ToiletQueueCore:
             })
         )
 
-        return True, f"Added {queue_code} to queue."
+        return True, f"Added {queue_code} to {queue_event} queue."
 
     def assign_toilet(self, row_id, queue_code, gender, toilet):
         if toilet not in LOCATIONS:
@@ -262,9 +268,9 @@ class ToiletQueueCore:
             .select("*")
         )
 
-    def move_up(self, row_id):
+    def move_up(self, row_id, queue_event="default"):
         queue = [
-            row for row in self.load_active_queue()
+            row for row in self.load_active_queue(queue_event)
             if row.get("status") == STATUS_QUEUED
         ]
 
@@ -275,9 +281,9 @@ class ToiletQueueCore:
 
         return False, "Already at the top."
 
-    def move_down(self, row_id):
+    def move_down(self, row_id, queue_event="default"):
         queue = [
-            row for row in self.load_active_queue()
+            row for row in self.load_active_queue(queue_event)
             if row.get("status") == STATUS_QUEUED
         ]
 
@@ -287,3 +293,85 @@ class ToiletQueueCore:
                 return True, f"{row['queue_code']} moved down."
 
         return False, "Already at the bottom."
+    
+    # =========================================================
+    # EVENT MANAGEMENT
+    # =========================================================
+    def list_events(self):
+        rows = self._execute(
+            self.supabase.table("queue_events")
+            .select("*")
+            .order("created_at", desc=True)
+        )
+
+        return rows or []
+
+
+    def get_active_event(self):
+        rows = self._execute(
+            self.supabase.table("queue_events")
+            .select("*")
+            .eq("is_active", True)
+            .limit(1)
+        )
+
+        if rows:
+            return rows[0].get("event_name", "default")
+
+        return "default"
+
+
+    def create_event(self, event_name):
+        event_name = str(event_name).strip()
+
+        if not event_name:
+            return False, "Please enter an event name."
+
+        existing = self._execute(
+            self.supabase.table("queue_events")
+            .select("*")
+            .eq("event_name", event_name)
+        )
+
+        if existing:
+            return False, f"Event already exists: {event_name}"
+
+        self._execute(
+            self.supabase.table("queue_events")
+            .insert({
+                "event_name": event_name,
+                "is_active": False,
+            })
+        )
+
+        return True, f"Created event: {event_name}"
+
+
+    def set_active_event(self, event_name):
+        event_name = str(event_name).strip()
+
+        if not event_name:
+            return False, "Invalid event name."
+
+        existing = self._execute(
+            self.supabase.table("queue_events")
+            .select("*")
+            .eq("event_name", event_name)
+        )
+
+        if not existing:
+            return False, f"Event does not exist: {event_name}"
+
+        self._execute(
+            self.supabase.table("queue_events")
+            .update({"is_active": False})
+            .neq("event_name", "__never_match__")
+        )
+
+        self._execute(
+            self.supabase.table("queue_events")
+            .update({"is_active": True})
+            .eq("event_name", event_name)
+        )
+
+        return True, f"Switched active event to: {event_name}"
