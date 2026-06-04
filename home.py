@@ -757,8 +757,6 @@ except Exception as e:
 # =========================================================
 st.markdown("<div class='app-title'>🚻 Toilet Queue</div>", unsafe_allow_html=True)
 
-active_event = render_event_manager()
-
 st.markdown("<div class='section-title'>Gender</div>", unsafe_allow_html=True)
 
 gender_cols = st.columns(2, gap="small")
@@ -873,8 +871,7 @@ else:
         with st.container(border=True):
             render_queue_card(index, row)
 
-
-
+active_event = render_event_manager()
 st.session_state.active_event = active_event
 
 # =========================================================
