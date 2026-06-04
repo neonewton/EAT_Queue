@@ -69,8 +69,8 @@ st.markdown(
     }
 
     div[data-testid="stButton"] > button {
-        min-height: 34px !important;
-        border-radius: 12px !important;
+        min-height: 25px !important;
+        border-radius: 5px !important;
         font-size: 0.85rem !important;
         font-weight: 800 !important;
         padding: 0.1rem 0.1rem !important;
