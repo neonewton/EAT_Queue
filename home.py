@@ -7,6 +7,7 @@ from theme import apply_ntu_purple_theme
 from streamlit_autorefresh import st_autorefresh
 import html as html_lib
 from typing import Optional, Dict, Any
+from faq import render_faq
 
 
 from core import (
@@ -900,8 +901,11 @@ else:
         with st.container(border=True):
             render_queue_card(index, row)
 
-render_event_admin_panel()
 
+render_faq()
+st.space(size="small")
+render_event_admin_panel()
+st.space(size="small")
 # =========================================================
 # LOG SECTION
 # =========================================================
