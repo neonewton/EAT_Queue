@@ -653,23 +653,14 @@ def render_in_queue_summary(all_queue):
 # =========================================================
 # EVENT MANAGEMENT UI
 # =========================================================
-def render_event_manager():
+
+def render_active_event_banner():
     try:
-        events = core.list_events()
         active_event = core.get_active_event()
     except Exception as e:
-        st.error(f"Failed to load events: {e}")
+        st.error(f"Failed to load active event: {e}")
         return "default"
 
-    event_names = [row.get("event_name") for row in events if row.get("event_name")]
-
-    if not event_names:
-        event_names = ["default"]
-
-    if "pending_event_switch" not in st.session_state:
-        st.session_state.pending_event_switch = None
-
-    # Show active event at the top of the page
     st.markdown(
         f"""
         <div style="
@@ -689,6 +680,25 @@ def render_event_manager():
         unsafe_allow_html=True,
     )
 
+    return active_event
+
+
+def render_event_admin_panel():
+    try:
+        events = core.list_events()
+        active_event = core.get_active_event()
+    except Exception as e:
+        st.error(f"Failed to load events: {e}")
+        return
+
+    event_names = [row.get("event_name") for row in events if row.get("event_name")]
+
+    if not event_names:
+        event_names = ["default"]
+
+    if "pending_event_switch" not in st.session_state:
+        st.session_state.pending_event_switch = None
+
     with st.expander("➕ Create / Switch Event"):
         selected_event = st.selectbox(
             "Select Event",
@@ -705,7 +715,7 @@ def render_event_manager():
 
             st.warning(f"Switch to {pending}? This will affect all users.")
 
-            confirm_cols = st.columns(2)
+            confirm_cols = st.columns(2, gap="small")
 
             with confirm_cols[0]:
                 if st.button(
@@ -752,7 +762,6 @@ def render_event_manager():
             except Exception as e:
                 set_message(False, f"Failed to create event: {e}")
 
-    return active_event
 
 # =========================================================
 # AUTO REFRESH + ARCHIVE
@@ -770,8 +779,8 @@ except Exception as e:
 # =========================================================
 st.markdown("<div class='app-title'>🚻 Toilet Queue</div>", unsafe_allow_html=True)
 
-active_event = render_event_manager()
-# st.session_state.active_event = active_event
+active_event = render_active_event_banner()
+st.session_state.active_event = active_event
 
 st.markdown("<div class='section-title'>Gender</div>", unsafe_allow_html=True)
 
@@ -887,8 +896,7 @@ else:
         with st.container(border=True):
             render_queue_card(index, row)
 
-# active_event = render_event_manager()
-st.session_state.active_event = active_event
+render_event_admin_panel()
 
 # =========================================================
 # LOG SECTION
