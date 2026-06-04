@@ -954,8 +954,8 @@ else:
 
 
 render_faq()
-st.space(size="xxsmall")
-render_toilet_disable_panel()
+# st.space(size="xxsmall")
+# render_toilet_disable_panel()
 st.space(size="xxsmall")
 render_event_admin_panel()
 st.space(size="xxsmall")
