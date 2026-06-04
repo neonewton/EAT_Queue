@@ -713,7 +713,7 @@ def render_event_admin_panel():
         pending = st.session_state.pending_event_switch
 
         if pending:
-            st.warning(f"Switch to {pending}? This will affect all users.")
+            st.warning(f"Switch to <bold>{pending}</bold>? This will affect all users.")
         else:
             st.info("Select an event above, then press OK to switch.")
 
@@ -738,7 +738,7 @@ def render_event_admin_panel():
 
         new_event_name = st.text_input(
             "New Event Name",
-            placeholder="e.g. Y3_OSCE_AM",
+            placeholder="e.g. AY2526_Y1P1",
             key="new_event_name",
         )
 
