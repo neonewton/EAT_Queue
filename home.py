@@ -69,11 +69,11 @@ st.markdown(
     }
 
     div[data-testid="stButton"] > button {
-        min-height: 40px !important;
-        border-radius: 14px !important;
-        font-size: 0.95rem !important;
+        min-height: 34px !important;
+        border-radius: 12px !important;
+        font-size: 0.85rem !important;
         font-weight: 800 !important;
-        padding: 0.15rem 0.15rem !important;
+        padding: 0.1rem 0.1rem !important;
         white-space: nowrap !important;
     }
 
@@ -279,6 +279,10 @@ st.markdown(
 
     div[data-testid="stVerticalBlock"] {
         gap: 1 rem !important;
+    }
+
+    div[data-testid="stHorizontalBlock"] {
+        gap: 0.15rem !important;
     }
 
     </style>
@@ -576,7 +580,7 @@ def render_queue_card(index, row):
                 use_container_width=True,
             )
 
-            arrow_cols = st.columns(2, gap="small")
+            arrow_cols = st.columns(2)
 
             with arrow_cols[0]:
                 st.button(
