@@ -131,7 +131,7 @@ st.markdown(
         border-radius: 12px;
         background-color: #ffecec;
         color: #b00020;
-        margin-bottom: 0.6rem;
+        margin-bottom: 0.3rem;
     }
 
     .toilet-status-row {
@@ -266,7 +266,20 @@ st.markdown(
 
     div[data-testid="stNumberInput"] button {
         display: none !important;
-    }   
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+    margin-bottom: 0.1rem !important;
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"] > div {
+        padding-top: 0.3rem !important;
+        padding-bottom: 0.3rem !important;
+    }
+
+    div[data-testid="stVerticalBlock"] {
+        gap: 0.15rem !important;
+    }
 
     </style>
     """,
