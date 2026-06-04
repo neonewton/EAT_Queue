@@ -710,36 +710,29 @@ def render_event_admin_panel():
         if selected_event != active_event:
             st.session_state.pending_event_switch = selected_event
 
-        if st.session_state.pending_event_switch:
-            pending = st.session_state.pending_event_switch
+        pending = st.session_state.pending_event_switch
 
+        if pending:
             st.warning(f"Switch to {pending}? This will affect all users.")
+        else:
+            st.info("Select an event above, then press OK to switch.")
 
-            confirm_cols = st.columns(2, gap="small")
-
-            with confirm_cols[0]:
-                if st.button(
-                    "OK",
-                    key="confirm_event_switch",
-                    type="primary",
-                    use_container_width=True,
-                ):
-                    try:
-                        ok, message = core.set_active_event(pending)
-                        set_message(ok, message)
-                        st.session_state.pending_event_switch = None
-                        st.rerun()
-                    except Exception as e:
-                        set_message(False, f"Failed to switch event: {e}")
-
-            with confirm_cols[1]:
-                if st.button(
-                    "Cancel",
-                    key="cancel_event_switch",
-                    use_container_width=True,
-                ):
+        if st.button(
+            "OK",
+            key="confirm_event_switch",
+            type="primary",
+            use_container_width=True,
+        ):
+            if not pending:
+                set_message(False, "Please select a different event first.")
+            else:
+                try:
+                    ok, message = core.set_active_event(pending)
+                    set_message(ok, message)
                     st.session_state.pending_event_switch = None
                     st.rerun()
+                except Exception as e:
+                    set_message(False, f"Failed to switch event: {e}")
 
         st.markdown("---")
 
