@@ -77,22 +77,16 @@ st.markdown(
         white-space: nowrap !important;
     }
 
-    .app-title {
+    .section-title {
         font-size: 1rem;
         font-weight: 800;
-        margin: 0.3rem 0 0.6rem 0;
-    }
-
-    .section-title {
-        font-size: 1.45rem;
-        font-weight: 900;
-        margin: 0.8rem 0 0.45rem 0;
+        margin: 0.3rem 0 0.3rem 0;
     }
 
     .small-title {
-        font-size: 1.05rem;
+        font-size: 0.8rem;
         font-weight: 800;
-        margin: 0.7rem 0 0.35rem 0;
+        margin: 0.3rem 0 0.3rem 0;
     }
 
     .seat-preview {
@@ -100,10 +94,10 @@ st.markdown(
         border: 2px solid #d9d9d9;
         border-radius: 18px;
         text-align: center;
-        padding: 0.75rem 0;
-        margin: 0.4rem 0 0.75rem 0;
+        padding: 0.3rem 0;
+        margin: 0.3rem 0 0.3rem 0;
         font-size: 2.1rem;
-        font-weight: 900;
+        font-weight: 800;
         background-color: #fafafa;
         letter-spacing: 0.08rem;
         box-sizing: border-box;
@@ -112,12 +106,12 @@ st.markdown(
     .preview-box {
         width: 100%;
         text-align: center;
-        font-size: 1.05rem;
+        font-size: 0.8rem;
         font-weight: 800;
-        padding: 0.7rem 0;
+        padding: 0.3rem 0;
         border-radius: 14px;
         background-color: #f3f3f3;
-        margin: 0.75rem 0;
+        margin: 0.3rem 0;
         box-sizing: border-box;
     }
 
@@ -127,7 +121,7 @@ st.markdown(
         padding: 0.65rem;
         border-radius: 12px;
         background-color: #f4f4f4;
-        margin-bottom: 0.6rem;
+        margin-bottom: 0.3rem;
     }
 
     .error-note {
@@ -770,7 +764,7 @@ except Exception as e:
 # =========================================================
 # ADD STUDENT SECTION
 # =========================================================
-st.markdown("<div class='app-title'>🚻 Toilet Queue</div>", unsafe_allow_html=True)
+st.markdown("<div class='section-title'>🚻 Toilet Queue</div>", unsafe_allow_html=True)
 
 active_event = render_active_event_banner()
 st.session_state.active_event = active_event
