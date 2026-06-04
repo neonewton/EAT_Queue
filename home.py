@@ -278,7 +278,7 @@ st.markdown(
     }
 
     div[data-testid="stVerticalBlock"] {
-        gap: 0.3rem !important;
+        gap: 0.5rem !important;
     }
 
     </style>
