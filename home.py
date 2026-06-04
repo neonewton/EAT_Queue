@@ -923,12 +923,15 @@ except Exception as e:
 all_queue = sorted(
     all_queue,
     key=lambda x: (
-        0 if x.get("status") == STATUS_IN_PROGRESS else
-        1 if x.get("status") == STATUS_QUEUED else
-        2,
+        0 if x.get("status") == STATUS_RETURNED else
+        1 if x.get("status") == STATUS_IN_PROGRESS else
+        2 if x.get("status") == STATUS_QUEUED else
+        3,
+        x.get("returned_at", "") if x.get("status") == STATUS_RETURNED else "",
         x.get("queue_order", 9999) or 9999,
         x.get("created_at", ""),
-    )
+    ),
+    reverse=False,
 )
 
 st.markdown(
