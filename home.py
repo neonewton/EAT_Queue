@@ -5,6 +5,9 @@ import pandas as pd
 import streamlit as st
 from theme import apply_ntu_purple_theme
 from streamlit_autorefresh import st_autorefresh
+import html as html_lib
+from typing import Optional, Dict, Any
+
 
 from core import (
     ToiletQueueCore,
@@ -225,7 +228,7 @@ st.markdown(
     .normal-card-content {
         border: 2px solid transparent;
         border-radius: 12px;
-        padding: 0.15rem;
+        padding: 0.1rem;
     }
 
     @keyframes nudgePulse {
@@ -278,19 +281,26 @@ st.markdown(
 
 
 # =========================================================
-# SUPABASE
+# PASSWORD + SUPABASE
 # =========================================================
+
+
 try:
+    APP_PASSWORD = st.secrets["APP_PASSWORD"]
     SUPABASE_URL = st.secrets["SUPABASE_URL"]
     SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 except KeyError as e:
     st.error(f"Missing Streamlit secret: {e}")
     st.stop()
 
+# Uncomment if you want password screen again.
+# password = st.text_input("Event Password", type="password", label_visibility="collapsed")
+# if password != APP_PASSWORD:
+#     st.warning("Enter password to continue.")
+#     st.stop()
+
 core = ToiletQueueCore(SUPABASE_URL, SUPABASE_KEY)
 
-
-# =========================================================
 # SESSION STATE
 # =========================================================
 if "selected_gender" not in st.session_state:
@@ -439,7 +449,8 @@ def move_down_callback(row_id):
 
 
 def render_toilet_status_boxes(all_queue):
-    toilet_status = {
+
+    toilet_status: Dict[str, Optional[Dict[str, Any]]] = {
         "Male": None,
         "Female": None,
         "Handicap": None,
@@ -580,7 +591,7 @@ def render_queue_card(index, row):
 
             with arrow_cols[0]:
                 st.button(
-                    "Move Up",
+                    "⬆️",
                     key=f"up_{row_id}",
                     on_click=move_up_callback,
                     args=(row_id,),
@@ -589,7 +600,7 @@ def render_queue_card(index, row):
 
             with arrow_cols[1]:
                 st.button(
-                    "Move Down",
+                    "⬇️",
                     key=f"down_{row_id}",
                     on_click=move_down_callback,
                     args=(row_id,),
@@ -632,8 +643,8 @@ def render_in_queue_summary(all_queue):
         if row.get("status") == STATUS_QUEUED and row.get("gender") == "Female"
     )
 
-    male_color = "#d00000" if male_count > 10 else "#222222"
-    female_color = "#d00000" if female_count > 10 else "#222222"
+    male_color = "#d00000" if male_count >= 5 else "#222222"
+    female_color = "#d00000" if female_count >= 5 else "#222222"
 
     st.markdown(
         f"""
@@ -641,18 +652,16 @@ def render_in_queue_summary(all_queue):
             width:100%;
             background:#f3f3f3;
             border-radius:14px;
-            padding:0.75rem;
-            margin:0.7rem 0 0.8rem 0;
-            font-weight:900;
-            text-align:center;
+            padding:0.25rem;
+            margin:0.2rem 0 0.2rem 0;
+            text-align:left;
             box-sizing:border-box;
-            line-height:1.5;
+            line-height:1;
         ">
-            <div style="font-size:1rem;">In Queue</div>
             <div style="font-size:1rem;">
-                <span style="color:{male_color};">Male: {male_count}</span>
+                <span style="color:{male_color};">Male: <span style="font-weight:900;">{male_count}</span></span>
                 <span style="color:#777;"> | </span>
-                <span style="color:{female_color};">Female: {female_count}</span>
+                <span style="color:{female_color};">Female: <span style="font-weight:900;">{female_count}</span></span>
             </div>
         </div>
         """,
@@ -809,11 +818,6 @@ seat_clean = "" if seat_value is None else str(int(seat_value))
 
 seat_display = seat_clean or "—"
 
-st.markdown(
-    f"<div class='seat-preview'>{seat_display}</div>",
-    unsafe_allow_html=True,
-)
-
 preview_code = (
     get_queue_code(seat_clean, st.session_state.selected_gender)
     if seat_clean
@@ -821,9 +825,14 @@ preview_code = (
 )
 
 st.markdown(
-    f"<div class='preview-box'>Queue Code: {preview_code}</div>",
+    f"<div class='seat-preview'>{preview_code}</div>",
     unsafe_allow_html=True,
 )
+
+# st.markdown(
+#     f"<div class='preview-box'>Queue Code: {preview_code}</div>",
+#     unsafe_allow_html=True,
+# )
 
 st.button(
     "➕ Add to Queue",
@@ -862,6 +871,11 @@ all_queue = sorted(
     )
 )
 
+st.markdown(
+    "<div class='section-title'>⏱️ In Queue</div>",
+    unsafe_allow_html=True,
+)
+
 render_in_queue_summary(all_queue)
 
 st.markdown(
@@ -877,6 +891,9 @@ else:
     for index, row in enumerate(all_queue, start=1):
         with st.container(border=True):
             render_queue_card(index, row)
+
+
+
 # =========================================================
 # LOG SECTION
 # =========================================================
@@ -927,3 +944,6 @@ with st.expander("📊 Queue Log / Export CSV"):
             mime="text/csv",
             use_container_width=True,
         )
+
+st.space(size="large")
+st.space(size="large")
