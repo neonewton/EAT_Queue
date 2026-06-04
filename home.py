@@ -269,7 +269,7 @@ st.markdown(
     }
 
     div[data-testid="stVerticalBlockBorderWrapper"] {
-    margin-bottom: 0.5rem !important;
+    margin-bottom: 0.3rem !important;
     }
 
     div[data-testid="stVerticalBlockBorderWrapper"] > div {
@@ -278,7 +278,7 @@ st.markdown(
     }
 
     div[data-testid="stVerticalBlock"] {
-        gap: 0.5rem !important;
+        gap: 1 rem !important;
     }
 
     </style>
