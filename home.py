@@ -517,6 +517,14 @@ def render_toilet_status_boxes(all_queue):
                 f"</div>"
             )
 
+        else:
+            html_parts.append(
+                f"<div class='toilet-box'>"
+                f"<div class='toilet-title'>{toilet_label}</div>"
+                f"<div class='toilet-status' style='color:#2e7d32;'>Available</div>"
+                f"</div>"
+            )
+
     html_parts.append("</div>")
     st.markdown("".join(html_parts), unsafe_allow_html=True)
 
