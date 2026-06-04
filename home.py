@@ -248,6 +248,29 @@ st.markdown(
             transform: translateX(0);
         }
     }
+
+
+    /* Seat number input box */
+    div[data-testid="stNumberInput"] input {
+        height: 70px !important;
+        font-size: 1.8rem !important;
+        font-weight: 800 !important;
+        text-align: center !important;
+        border: 3px solid #7a005c !important;
+        border-radius: 14px !important;
+        padding: 0.4rem !important;
+    }
+
+    /* Number input outer container */
+    div[data-testid="stNumberInput"] {
+        margin-top: 0.3rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    div[data-testid="stNumberInput"] button {
+        display: none !important;
+    }   
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -313,21 +336,39 @@ def select_gender(gender):
     st.session_state.selected_gender = gender
 
 
+# def add_student_callback():
+#     try:
+#         seat_value = st.session_state.get("seat_no_number")
+
+#         seat_no = "" if seat_value is None else str(int(seat_value))
+
+#         ok, message = core.add_student(
+#             seat_no=seat_no,
+#             gender=st.session_state.selected_gender,
+#         )
+
+#         set_message(ok, message)
+
+#         if ok:
+#             st.session_state.seat_no_number = None
+
+#     except Exception as e:
+#         set_message(False, f"Failed to add student: {e}")
+
 def add_student_callback():
     try:
-        seat_value = st.session_state.get("seat_no_number")
-
-        seat_no = "" if seat_value is None else str(int(seat_value))
+        seat_no = clean_seat(st.session_state.seat_no_input)
 
         ok, message = core.add_student(
             seat_no=seat_no,
             gender=st.session_state.selected_gender,
+            queue_event=st.session_state.active_event,
         )
 
         set_message(ok, message)
 
         if ok:
-            st.session_state.seat_no_number = None
+            st.session_state.seat_no_input = ""
 
     except Exception as e:
         set_message(False, f"Failed to add student: {e}")
@@ -375,7 +416,10 @@ def call_callback(row_id, queue_code):
 
 def move_up_callback(row_id):
     try:
-        ok, message = core.move_up(row_id)
+        ok, message = core.move_up(
+            row_id,
+            queue_event=st.session_state.active_event,
+        )
         set_message(ok, message)
 
     except Exception as e:
@@ -384,7 +428,10 @@ def move_up_callback(row_id):
 
 def move_down_callback(row_id):
     try:
-        ok, message = core.move_down(row_id)
+        ok, message = core.move_down(
+            row_id,
+            queue_event=st.session_state.active_event,
+        )
         set_message(ok, message)
 
     except Exception as e:
@@ -613,6 +660,97 @@ def render_in_queue_summary(all_queue):
     )
 
 # =========================================================
+# EVENT MANAGEMENT UI
+# =========================================================
+def render_event_manager():
+    try:
+        events = core.list_events()
+        active_event = core.get_active_event()
+    except Exception as e:
+        st.error(f"Failed to load events: {e}")
+        return "default"
+
+    event_names = [row.get("event_name") for row in events if row.get("event_name")]
+
+    if not event_names:
+        event_names = ["default"]
+
+    if "pending_event_switch" not in st.session_state:
+        st.session_state.pending_event_switch = None
+
+    st.markdown(
+        f"""
+        <div style="
+            width:100%;
+            background:#f3f3f3;
+            border-radius:14px;
+            padding:0.75rem;
+            margin:0.5rem 0 0.8rem 0;
+            box-sizing:border-box;
+            text-align:center;
+            font-weight:800;
+        ">
+            Active Event<br>
+            <span style="font-size:1.05rem; color:#70005d;">{active_event}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    selected_event = st.selectbox(
+        "Select Event",
+        event_names,
+        index=event_names.index(active_event) if active_event in event_names else 0,
+        key="event_selector",
+    )
+
+    if selected_event != active_event:
+        st.session_state.pending_event_switch = selected_event
+
+    if st.session_state.pending_event_switch:
+        pending = st.session_state.pending_event_switch
+
+        st.warning(f"Switch to {pending}? This will affect all users.")
+
+        confirm_cols = st.columns(2)
+
+        with confirm_cols[0]:
+            if st.button("OK", key="confirm_event_switch", type="primary", use_container_width=True):
+                try:
+                    ok, message = core.set_active_event(pending)
+                    set_message(ok, message)
+                    st.session_state.pending_event_switch = None
+                    st.rerun()
+                except Exception as e:
+                    set_message(False, f"Failed to switch event: {e}")
+
+        with confirm_cols[1]:
+            if st.button("Cancel", key="cancel_event_switch", use_container_width=True):
+                st.session_state.pending_event_switch = None
+                st.rerun()
+
+    with st.expander("➕ Create New Event"):
+        new_event_name = st.text_input(
+            "New Event Name",
+            placeholder="e.g. Y3_OSCE_AM",
+            key="new_event_name",
+        )
+
+        if st.button("Create Event", key="create_event", use_container_width=True):
+            try:
+                ok, message = core.create_event(new_event_name)
+                set_message(ok, message)
+
+                if ok:
+                    st.session_state.new_event_name = ""
+                    st.rerun()
+
+            except Exception as e:
+                set_message(False, f"Failed to create event: {e}")
+
+    return active_event
+
+# =========================================================
 # AUTO REFRESH + ARCHIVE
 # =========================================================
 st_autorefresh(interval=3000, key="queue_autorefresh")
@@ -627,6 +765,9 @@ except Exception as e:
 # ADD STUDENT SECTION
 # =========================================================
 st.markdown("<div class='app-title'>🚻 Toilet Queue</div>", unsafe_allow_html=True)
+
+active_event = render_event_manager()
+st.session_state.active_event = active_event
 
 st.markdown("<div class='section-title'>Gender</div>", unsafe_allow_html=True)
 
@@ -705,7 +846,7 @@ if st.session_state.last_action_message:
 # ACTIVE QUEUE SECTION
 # =========================================================
 try:
-    all_queue = core.load_active_queue()
+    all_queue = core.load_active_queue(st.session_state.active_event)
 except Exception as e:
     st.error(f"Failed to load active queue: {e}")
     all_queue = []
@@ -741,7 +882,7 @@ else:
 # =========================================================
 with st.expander("📊 Queue Log / Export CSV"):
     try:
-        log_rows = core.load_log()
+        log_rows = core.load_log(st.session_state.active_event)
     except Exception as e:
         st.error(f"Failed to load queue log: {e}")
         log_rows = []
@@ -777,10 +918,12 @@ with st.expander("📊 Queue Log / Export CSV"):
 
         csv = df.to_csv(index=False).encode("utf-8-sig")
 
+        safe_event_name = st.session_state.active_event.replace(" ", "_").replace("/", "_")
+
         st.download_button(
             label="Download CSV",
             data=csv,
-            file_name="toilet_queue_log.csv",
+            file_name=f"toilet_queue_log_{safe_event_name}.csv",
             mime="text/csv",
             use_container_width=True,
         )
