@@ -187,9 +187,11 @@ class ToiletQueueCore:
 
         return True, f"Added {queue_code} to {queue_event} queue."
 
-    def assign_toilet(self, row_id, queue_code, gender, toilet):
+    def assign_toilet(self, row_id, queue_code, gender, toilet, queue_event="default"):
         if toilet not in LOCATIONS:
             return False, "Invalid toilet selected."
+
+        queue_event = str(queue_event).strip() or "default"
 
         is_valid, message = validate_assignment(gender, toilet)
 
@@ -199,6 +201,7 @@ class ToiletQueueCore:
         existing_in_progress = self._execute(
             self.supabase.table("toilet_queue")
             .select("*")
+            .eq("queue_event", queue_event)
             .eq("location", toilet)
             .eq("status", STATUS_IN_PROGRESS)
         )
@@ -209,7 +212,7 @@ class ToiletQueueCore:
 
             return (
                 False,
-                f"{toilet_label} Toilet is currently in use by {current_user}. Please wait until they return."
+                f"{toilet_label} Toilet is currently in use by {current_user} for {queue_event}."
             )
 
         self._execute(
@@ -220,6 +223,8 @@ class ToiletQueueCore:
                 "assigned_at": now_utc_iso(),
             })
             .eq("id", row_id)
+            .eq("queue_event", queue_event)
+            .eq("status", STATUS_QUEUED)
             .select("*")
         )
 

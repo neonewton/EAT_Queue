@@ -415,6 +415,7 @@ def assign_toilet_callback(row_id, queue_code, gender, toilet):
             queue_code=queue_code,
             gender=gender,
             toilet=toilet,
+            queue_event=st.session_state.active_event,
         )
 
         if ok:
