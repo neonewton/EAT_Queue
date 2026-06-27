@@ -215,7 +215,7 @@ class ToiletQueueCore:
                 f"{toilet_label} Toilet is currently in use by {current_user} for {queue_event}."
             )
 
-        self._execute(
+        result = self._execute(
             self.supabase.table("toilet_queue")
             .update({
                 "location": toilet,
@@ -227,6 +227,9 @@ class ToiletQueueCore:
             .eq("status", STATUS_QUEUED)
             .select("*")
         )
+
+        if not result:
+            return False, f"{queue_code} was already assigned or is no longer queued."
 
         return True, f"{queue_code} assigned to {TOILET_LABELS[toilet]}."
 
