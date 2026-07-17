@@ -614,25 +614,25 @@ def render_queue_card(index, row):
                 disabled=st.session_state.disabled_toilets.get("Handicap", False),
             )
 
-            arrow_cols = st.columns(2)
+            # arrow_cols = st.columns(2)
 
-            with arrow_cols[0]:
-                st.button(
-                    "⬆️",
-                    key=f"up_{row_id}",
-                    on_click=move_up_callback,
-                    args=(row_id,),
-                    use_container_width=True,
-                )
+            # with arrow_cols[0]:
+            #     st.button(
+            #         "⬆️",
+            #         key=f"up_{row_id}",
+            #         on_click=move_up_callback,
+            #         args=(row_id,),
+            #         use_container_width=True,
+            #     )
 
-            with arrow_cols[1]:
-                st.button(
-                    "⬇️",
-                    key=f"down_{row_id}",
-                    on_click=move_down_callback,
-                    args=(row_id,),
-                    use_container_width=True,
-                )
+            # with arrow_cols[1]:
+            #     st.button(
+            #         "⬇️",
+            #         key=f"down_{row_id}",
+            #         on_click=move_down_callback,
+            #         args=(row_id,),
+            #         use_container_width=True,
+            #     )
 
     elif status == STATUS_IN_PROGRESS:
         action_cols = st.columns(2, gap="small")
